@@ -29,6 +29,9 @@ fun HomeScreen(
     onNavigateToOutbound: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
+    // 更新按钮点击事件，调用传入的回调
+    val onInboundClick = { onNavigateToInbound() }
+    val onOutboundClick = { onNavigateToOutbound() }
     var recentOrders by remember { mutableStateOf<List<RecentOrder>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
@@ -103,7 +106,7 @@ fun HomeScreen(
                 title = "入库管理",
                 subtitle = "新建入库单 / 入库记录",
                 backgroundColor = Color(0xFF1976D2),
-                onClick = onNavigateToInbound,
+                onClick = onInboundClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
@@ -117,7 +120,7 @@ fun HomeScreen(
                 title = "出库管理",
                 subtitle = "新建出库单 / 出库记录",
                 backgroundColor = Color(0xFFFF9800),
-                onClick = onNavigateToOutbound,
+                onClick = onOutboundClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
