@@ -19,6 +19,7 @@ sealed class Screen {
     object Inventory : Screen()
     object Stats : Screen()
     object BaseData : Screen()
+    object Export : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -65,11 +66,17 @@ class MainActivity : ComponentActivity() {
                         }
                         is Screen.Stats -> {
                             StatsScreen(
-                                onNavigateBack = { currentScreen = Screen.Home }
+                                onNavigateBack = { currentScreen = Screen.Home },
+                                onNavigateToExport = { currentScreen = Screen.Export }
                             )
                         }
                         is Screen.BaseData -> {
                             BaseDataScreen(
+                                onNavigateBack = { currentScreen = Screen.Home }
+                            )
+                        }
+                        is Screen.Export -> {
+                            ExportScreen(
                                 onNavigateBack = { currentScreen = Screen.Home }
                             )
                         }

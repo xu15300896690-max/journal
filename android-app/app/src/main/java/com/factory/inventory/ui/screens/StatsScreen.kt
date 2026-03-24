@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateToExport: () -> Unit = {}
 ) {
     var stats by remember { mutableStateOf<Stats?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -48,6 +49,11 @@ fun StatsScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToExport) {
+                        Icon(Icons.Default.FileDownload, contentDescription = "导出")
                     }
                 }
             )
