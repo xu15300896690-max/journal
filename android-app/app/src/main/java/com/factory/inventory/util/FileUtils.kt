@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -59,8 +60,8 @@ object FileUtils {
             val resolver = context.contentResolver
             val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
             uri?.let {
-                resolver.openOutputStream(it)?.use { outputStream ->
-                    FileInputStream(file).use { inputStream ->
+                resolver.openOutputStream(it)?.use { outputStream: java.io.OutputStream ->
+                    FileInputStream(file).use { inputStream: java.io.FileInputStream ->
                         inputStream.copyTo(outputStream)
                     }
                 }
