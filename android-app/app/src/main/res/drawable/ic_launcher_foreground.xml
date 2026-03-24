@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- 仓库主体 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 L75,42 L75,85 L33,85 L33,42 Z"/>
+    
+    <!-- 屋顶 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 L75,42 L33,42 Z"/>
+    
+    <!-- 门 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M48,60 L60,60 L60,85 L48,85 Z"/>
+    
+    <!-- 左窗 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M38,50 L45,50 L45,57 L38,57 Z"/>
+    
+    <!-- 右窗 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M63,50 L70,50 L70,57 L63,57 Z"/>
+    
+    <!-- 入库箭头 -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M25,70 L32,70 L32,67 L35,70 L32,73 L32,70 L25,70 Z"/>
+    
+    <!-- 出库箭头 -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M83,70 L76,70 L76,67 L73,70 L76,73 L76,70 L83,70 Z"/>
+</vector>
