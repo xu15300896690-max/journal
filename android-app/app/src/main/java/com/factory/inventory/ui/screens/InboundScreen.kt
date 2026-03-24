@@ -16,8 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.*
+import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,9 +36,13 @@ fun InboundScreen(
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getInboundList(page = 1, perPage = 50)
-                if (response.isSuccessful) {
-                    orders = response.body()?.data?.data ?: emptyList()
+                if (Config.USE_LOCAL_DATA) {
+                    orders = MockData.mockInboundOrders
+                } else {
+                    val response = ApiClient.getService().getInboundList(page = 1, perPage = 50)
+                    if (response.isSuccessful) {
+                        orders = response.body()?.data?.data ?: emptyList()
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

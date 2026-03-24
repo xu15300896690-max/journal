@@ -13,8 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.Stats
+import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,13 +32,18 @@ fun StatsScreen(
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getStats()
-                if (response.isSuccessful) {
-                    stats = response.body()?.data
+                if (Config.USE_LOCAL_DATA) {
+                    stats = MockData.mockStats
+                    isLoading = false
+                } else {
+                    val response = ApiClient.getService().getStats()
+                    if (response.isSuccessful) {
+                        stats = response.body()?.data
+                    }
+                    isLoading = false
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
                 isLoading = false
             }
         }

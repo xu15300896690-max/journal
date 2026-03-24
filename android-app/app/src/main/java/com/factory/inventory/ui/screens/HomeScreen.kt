@@ -17,9 +17,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.InboundOrder
 import com.factory.inventory.data.model.OutboundOrder
+import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,37 +41,61 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
-                val inboundOrders = if (inboundResponse.isSuccessful) {
-                    inboundResponse.body()?.data?.data?.map { order ->
+                if (Config.USE_LOCAL_DATA) {
+                    // 使用本地测试数据
+                    recentOrders = (MockData.mockInboundOrders + MockData.mockOutboundOrders.map {
                         RecentOrder(
-                            orderNo = order.order_no,
-                            type = "inbound",
-                            partner = order.supplier_name,
-                            amount = order.total_amount,
-                            date = order.created_at,
-                            plateNumber = order.plate_number
-                        )
-                    } ?: emptyList()
-                } else emptyList()
-                
-                val outboundResponse = ApiClient.getService().getOutboundList(page = 1, perPage = 5)
-                val outboundOrders = if (outboundResponse.isSuccessful) {
-                    outboundResponse.body()?.data?.data?.map { order ->
-                        RecentOrder(
-                            orderNo = order.order_no,
+                            orderNo = it.order_no,
                             type = "outbound",
-                            partner = order.customer_name,
-                            amount = order.total_amount,
-                            date = order.created_at,
-                            plateNumber = order.plate_number
+                            partner = it.customer_name,
+                            amount = it.total_amount,
+                            date = it.created_at,
+                            plateNumber = it.plate_number
                         )
-                    } ?: emptyList()
-                } else emptyList()
-                
-                recentOrders = (inboundOrders + outboundOrders)
-                    .sortedByDescending { it.date }
-                    .take(5)
+                    }).map {
+                        RecentOrder(
+                            orderNo = it.orderNo,
+                            type = it.type,
+                            partner = it.partner,
+                            amount = it.amount,
+                            date = it.date,
+                            plateNumber = it.plateNumber
+                        )
+                    }.sortedByDescending { it.date }.take(5)
+                } else {
+                    // 使用服务器数据
+                    val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
+                    val inboundOrders = if (inboundResponse.isSuccessful) {
+                        inboundResponse.body()?.data?.data?.map { order ->
+                            RecentOrder(
+                                orderNo = order.order_no,
+                                type = "inbound",
+                                partner = order.supplier_name,
+                                amount = order.total_amount,
+                                date = order.created_at,
+                                plateNumber = order.plate_number
+                            )
+                        } ?: emptyList()
+                    } else emptyList()
+                    
+                    val outboundResponse = ApiClient.getService().getOutboundList(page = 1, perPage = 5)
+                    val outboundOrders = if (outboundResponse.isSuccessful) {
+                        outboundResponse.body()?.data?.data?.map { order ->
+                            RecentOrder(
+                                orderNo = order.order_no,
+                                type = "outbound",
+                                partner = order.customer_name,
+                                amount = order.total_amount,
+                                date = order.created_at,
+                                plateNumber = order.plate_number
+                            )
+                        } ?: emptyList()
+                    } else emptyList()
+                    
+                    recentOrders = (inboundOrders + outboundOrders)
+                        .sortedByDescending { it.date }
+                        .take(5)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

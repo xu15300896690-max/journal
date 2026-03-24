@@ -9,6 +9,11 @@ object Config {
     // ⚠️ 修改为你的服务器地址
     const val BASE_URL = "http://192.168.1.100:5000"
     
+    // 是否使用本地测试数据
+    // true = 使用本地 Mock 数据（开发测试）
+    // false = 使用服务器数据（生产环境）
+    var USE_LOCAL_DATA = true
+    
     // 连接超时 (秒)
     const val CONNECT_TIMEOUT = 30L
     

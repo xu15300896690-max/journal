@@ -13,8 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.InventoryItem
+import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,11 +33,19 @@ fun InventoryScreen(
     LaunchedEffect(showLowStockOnly) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getInventory(
-                    lowStock = if (showLowStockOnly) true else null
-                )
-                if (response.isSuccessful) {
-                    inventoryList = response.body()?.data ?: emptyList()
+                if (Config.USE_LOCAL_DATA) {
+                    inventoryList = if (showLowStockOnly) {
+                        MockData.mockInventory.filter { it.is_low }
+                    } else {
+                        MockData.mockInventory
+                    }
+                } else {
+                    val response = ApiClient.getService().getInventory(
+                        lowStock = if (showLowStockOnly) true else null
+                    )
+                    if (response.isSuccessful) {
+                        inventoryList = response.body()?.data ?: emptyList()
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

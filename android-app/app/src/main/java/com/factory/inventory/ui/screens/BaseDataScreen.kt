@@ -14,10 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.Supplier
 import com.factory.inventory.data.model.Customer
 import com.factory.inventory.data.model.Item
+import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,13 +80,18 @@ fun SupplierList() {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getSuppliers()
-                if (response.isSuccessful) {
-                    suppliers = response.body()?.data ?: emptyList()
+                if (Config.USE_LOCAL_DATA) {
+                    suppliers = MockData.mockSuppliers
+                    isLoading = false
+                } else {
+                    val response = ApiClient.getService().getSuppliers()
+                    if (response.isSuccessful) {
+                        suppliers = response.body()?.data ?: emptyList()
+                    }
+                    isLoading = false
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
                 isLoading = false
             }
         }
@@ -185,13 +192,18 @@ fun CustomerList() {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getCustomers()
-                if (response.isSuccessful) {
-                    customers = response.body()?.data ?: emptyList()
+                if (Config.USE_LOCAL_DATA) {
+                    customers = MockData.mockCustomers
+                    isLoading = false
+                } else {
+                    val response = ApiClient.getService().getCustomers()
+                    if (response.isSuccessful) {
+                        customers = response.body()?.data ?: emptyList()
+                    }
+                    isLoading = false
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
                 isLoading = false
             }
         }
@@ -292,13 +304,18 @@ fun ItemList() {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val response = ApiClient.getService().getItems()
-                if (response.isSuccessful) {
-                    items = response.body()?.data ?: emptyList()
+                if (Config.USE_LOCAL_DATA) {
+                    items = MockData.mockItems
+                    isLoading = false
+                } else {
+                    val response = ApiClient.getService().getItems()
+                    if (response.isSuccessful) {
+                        items = response.body()?.data ?: emptyList()
+                    }
+                    isLoading = false
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
                 isLoading = false
             }
         }
