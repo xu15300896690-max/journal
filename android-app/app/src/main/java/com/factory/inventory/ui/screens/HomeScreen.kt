@@ -43,7 +43,17 @@ fun HomeScreen(
             try {
                 if (Config.USE_LOCAL_DATA) {
                     // 使用本地测试数据
-                    recentOrders = (MockData.mockInboundOrders + MockData.mockOutboundOrders.map {
+                    val inboundOrders = MockData.mockInboundOrders.map {
+                        RecentOrder(
+                            orderNo = it.order_no,
+                            type = "inbound",
+                            partner = it.supplier_name,
+                            amount = it.total_amount,
+                            date = it.created_at,
+                            plateNumber = it.plate_number
+                        )
+                    }
+                    val outboundOrders = MockData.mockOutboundOrders.map {
                         RecentOrder(
                             orderNo = it.order_no,
                             type = "outbound",
@@ -52,16 +62,10 @@ fun HomeScreen(
                             date = it.created_at,
                             plateNumber = it.plate_number
                         )
-                    }).map {
-                        RecentOrder(
-                            orderNo = it.orderNo,
-                            type = it.type,
-                            partner = it.partner,
-                            amount = it.amount,
-                            date = it.date,
-                            plateNumber = it.plateNumber
-                        )
-                    }.sortedByDescending { it.date }.take(5)
+                    }
+                    recentOrders = (inboundOrders + outboundOrders)
+                        .sortedByDescending { it.date }
+                        .take(5)
                 } else {
                     // 使用服务器数据
                     val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
