@@ -23,6 +23,7 @@ import com.factory.inventory.data.model.InboundOrder
 import com.factory.inventory.data.model.OutboundOrder
 import com.factory.inventory.util.FileUtils
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -279,9 +280,9 @@ private suspend fun exportData(
                         "${inbound.warehouse_name}," +
                         "${inbound.plate_number.orEmpty()}," +
                         "${inbound.driver_name.orEmpty()}," +
-                        "${inbound.totalAmount}," +
-                        "${inbound.totalAmount}," +
-                        "${inbound.orderDate}"
+                        "${inbound.total_amount}," +
+                        "${inbound.total_amount}," +
+                        "${inbound.created_at.replace("T", " ").substring(0, 10)}"
                     )
                 } else {
                     val outbound = order as OutboundOrder
@@ -289,10 +290,10 @@ private suspend fun exportData(
                         "${outbound.order_no}," +
                         "${outbound.customer_name}," +
                         "${outbound.warehouse_name}," +
-                        "${outbound.plateNumber.orEmpty()}," +
-                        "${outbound.totalAmount}," +
-                        "${outbound.totalAmount}," +
-                        "${outbound.orderDate}"
+                        "${outbound.plate_number.orEmpty()}," +
+                        "${outbound.total_amount}," +
+                        "${outbound.total_amount}," +
+                        "${outbound.created_at.replace("T", " ").substring(0, 10)}"
                     )
                 }
             }
