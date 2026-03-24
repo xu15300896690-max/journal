@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.*
 import com.factory.inventory.ui.screens.LoginScreen
+import com.factory.inventory.ui.screens.HomeScreen
 import com.factory.inventory.ui.theme.FactoryInventoryTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +21,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreen()
+                    var isLoggedIn by remember { mutableStateOf(false) }
+                    
+                    if (isLoggedIn) {
+                        HomeScreen(
+                            onLogout = { isLoggedIn = false }
+                        )
+                    } else {
+                        LoginScreen(
+                            onLoginSuccess = { isLoggedIn = true }
+                        )
+                    }
                 }
             }
         }
