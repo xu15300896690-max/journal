@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">工厂出入库管理</string>
+    <string name="login">登录</string>
+    <string name="logout">退出登录</string>
+    <string name="inbound">入库</string>
+    <string name="outbound">出库</string>
+    <string name="inventory">库存</string>
+    <string name="stats">统计</string>
+    <string name="settings">设置</string>
+</resources>
