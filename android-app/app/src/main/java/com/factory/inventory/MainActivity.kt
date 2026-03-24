@@ -16,6 +16,9 @@ sealed class Screen {
     object Home : Screen()
     object Inbound : Screen()
     object Outbound : Screen()
+    object Inventory : Screen()
+    object Stats : Screen()
+    object BaseData : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +42,9 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 onNavigateToInbound = { currentScreen = Screen.Inbound },
                                 onNavigateToOutbound = { currentScreen = Screen.Outbound },
+                                onNavigateToInventory = { currentScreen = Screen.Inventory },
+                                onNavigateToStats = { currentScreen = Screen.Stats },
+                                onNavigateToBaseData = { currentScreen = Screen.BaseData },
                                 onLogout = { currentScreen = Screen.Login }
                             )
                         }
@@ -49,6 +55,21 @@ class MainActivity : ComponentActivity() {
                         }
                         is Screen.Outbound -> {
                             OutboundScreen(
+                                onNavigateBack = { currentScreen = Screen.Home }
+                            )
+                        }
+                        is Screen.Inventory -> {
+                            InventoryScreen(
+                                onNavigateBack = { currentScreen = Screen.Home }
+                            )
+                        }
+                        is Screen.Stats -> {
+                            StatsScreen(
+                                onNavigateBack = { currentScreen = Screen.Home }
+                            )
+                        }
+                        is Screen.BaseData -> {
+                            BaseDataScreen(
                                 onNavigateBack = { currentScreen = Screen.Home }
                             )
                         }

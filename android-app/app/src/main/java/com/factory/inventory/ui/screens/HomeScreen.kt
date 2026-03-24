@@ -27,20 +27,18 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onNavigateToInbound: () -> Unit = {},
     onNavigateToOutbound: () -> Unit = {},
+    onNavigateToInventory: () -> Unit = {},
+    onNavigateToStats: () -> Unit = {},
+    onNavigateToBaseData: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-    // 更新按钮点击事件，调用传入的回调
-    val onInboundClick = { onNavigateToInbound() }
-    val onOutboundClick = { onNavigateToOutbound() }
     var recentOrders by remember { mutableStateOf<List<RecentOrder>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     
-    // 加载最近记录
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                // 获取最近入库
                 val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
                 val inboundOrders = if (inboundResponse.isSuccessful) {
                     inboundResponse.body()?.data?.data?.map { order ->
@@ -55,7 +53,6 @@ fun HomeScreen(
                     } ?: emptyList()
                 } else emptyList()
                 
-                // 获取最近出库
                 val outboundResponse = ApiClient.getService().getOutboundList(page = 1, perPage = 5)
                 val outboundOrders = if (outboundResponse.isSuccessful) {
                     outboundResponse.body()?.data?.data?.map { order ->
@@ -70,7 +67,6 @@ fun HomeScreen(
                     } ?: emptyList()
                 } else emptyList()
                 
-                // 合并并排序
                 recentOrders = (inboundOrders + outboundOrders)
                     .sortedByDescending { it.date }
                     .take(5)
@@ -87,6 +83,9 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("工厂出入库管理") },
                 actions = {
+                    IconButton(onClick = onNavigateToBaseData) {
+                        Icon(Icons.Default.Business, contentDescription = "基础数据")
+                    }
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Default.Logout, contentDescription = "退出登录")
                     }
@@ -94,90 +93,114 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 入库按钮
-            ActionButton(
-                icon = Icons.Default.ArrowDownward,
-                title = "入库管理",
-                subtitle = "新建入库单 / 入库记录",
-                backgroundColor = Color(0xFF1976D2),
-                onClick = onInboundClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 出库按钮
-            ActionButton(
-                icon = Icons.Default.ArrowUpward,
-                title = "出库管理",
-                subtitle = "新建出库单 / 出库记录",
-                backgroundColor = Color(0xFFFF9800),
-                onClick = onOutboundClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // 最近记录标题
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "最近记录",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "查看更多 >",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+            // 功能按钮区域
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 入库按钮
+                    ActionButton(
+                        icon = Icons.Default.ArrowDownward,
+                        title = "入库",
+                        subtitle = "新建入库单",
+                        backgroundColor = Color(0xFF1976D2),
+                        onClick = onNavigateToInbound,
+                        modifier = Modifier.weight(1f).height(100.dp)
+                    )
+                    
+                    // 出库按钮
+                    ActionButton(
+                        icon = Icons.Default.ArrowUpward,
+                        title = "出库",
+                        subtitle = "新建出库单",
+                        backgroundColor = Color(0xFFFF9800),
+                        onClick = onNavigateToOutbound,
+                        modifier = Modifier.weight(1f).height(100.dp)
+                    )
+                }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 库存查询
+                    ActionButton(
+                        icon = Icons.Default.Inventory,
+                        title = "库存",
+                        subtitle = "库存查询",
+                        backgroundColor = Color(0xFF4CAF50),
+                        onClick = onNavigateToInventory,
+                        modifier = Modifier.weight(1f).height(100.dp)
+                    )
+                    
+                    // 统计报表
+                    ActionButton(
+                        icon = Icons.Default.BarChart,
+                        title = "统计",
+                        subtitle = "报表统计",
+                        backgroundColor = Color(0xFF9C27B0),
+                        onClick = onNavigateToStats,
+                        modifier = Modifier.weight(1f).height(100.dp)
+                    )
+                }
+            }
+            
+            // 最近记录
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "最近记录",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
             
             // 最近记录列表
             if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else if (recentOrders.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("暂无记录", color = Color.Gray)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(recentOrders) { order ->
-                        RecentOrderItem(order)
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
+            } else if (recentOrders.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("暂无记录", color = Color.Gray)
+                    }
+                }
+            } else {
+                items(recentOrders) { order ->
+                    RecentOrderItem(order)
+                }
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
@@ -193,8 +216,7 @@ fun ActionButton(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .clickable(onClick = onClick),
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -202,47 +224,30 @@ fun ActionButton(
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                .padding(20.dp),
-            contentAlignment = Alignment.CenterStart
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Column {
-                        Text(
-                            text = title,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = subtitle,
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-                
                 Icon(
-                    imageVector = Icons.Default.ChevronRight,
+                    imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.6f),
-                    modifier = Modifier.size(32.dp)
+                    tint = Color.White,
+                    modifier = Modifier.size(36.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
         }
@@ -251,7 +256,7 @@ fun ActionButton(
 
 data class RecentOrder(
     val orderNo: String,
-    val type: String, // "inbound" or "outbound"
+    val type: String,
     val partner: String,
     val amount: Double,
     val date: String,
@@ -274,7 +279,6 @@ fun RecentOrderItem(order: RecentOrder) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // 类型标识
                     Box(
                         modifier = Modifier
                             .size(8.dp)
@@ -283,30 +287,24 @@ fun RecentOrderItem(order: RecentOrder) {
                                 shape = RoundedCornerShape(4.dp)
                             )
                     )
-                    
                     Spacer(modifier = Modifier.width(8.dp))
-                    
                     Text(
                         text = order.orderNo,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        fontSize = 14.sp
                     )
                 }
-                
                 Spacer(modifier = Modifier.height(4.dp))
-                
                 Text(
                     text = order.partner,
                     color = Color.Gray,
-                    fontSize = 14.sp
+                    fontSize = 12.sp
                 )
-                
                 if (!order.plateNumber.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "🚗 ${order.plateNumber}",
                         color = Color.Gray,
-                        fontSize = 12.sp
+                        fontSize = 11.sp
                     )
                 }
             }
@@ -318,24 +316,19 @@ fun RecentOrderItem(order: RecentOrder) {
                     text = if (order.type == "inbound") "入库" else "出库",
                     color = if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFFFF9800),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = 12.sp
                 )
-                
                 Spacer(modifier = Modifier.height(4.dp))
-                
                 Text(
                     text = "¥${String.format("%.2f", order.amount)}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     color = if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFF4CAF50)
                 )
-                
-                Spacer(modifier = Modifier.height(2.dp))
-                
                 Text(
                     text = order.date.replace("T", " ").substring(0, 16),
                     color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 10.sp
                 )
             }
         }
