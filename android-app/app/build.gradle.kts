@@ -29,13 +29,13 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
-            buildConfigField("String", "SUPABASE_URL", "\"https://your-project.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_Q7sRshluCCgEbGQfLYyuXw_UNamiqwS\"")
         }
         debug {
             buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
-            buildConfigField("String", "SUPABASE_URL", "\"https://your-project.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_Q7sRshluCCgEbGQfLYyuXw_UNamiqwS\"")
         }
     }
     
