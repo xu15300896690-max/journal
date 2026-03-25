@@ -19,10 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.factory.inventory.data.MockData
-import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.ui.theme.*
-import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,77 +38,13 @@ fun HomeScreen(
     
     LaunchedEffect(Unit) {
         scope.launch {
-            try {
-                if (Config.USE_LOCAL_DATA) {
-                    val inboundOrders = MockData.mockInboundOrders.map {
-                        RecentOrder(
-                            orderNo = it.order_no,
-                            type = "inbound",
-                            partner = it.supplier_name,
-                            amount = it.total_amount,
-                            date = it.created_at,
-                            plateNumber = it.plate_number,
-                            status = "进行中",
-                            statusColor = StatusProcessing
-                        )
-                    }
-                    val outboundOrders = MockData.mockOutboundOrders.map {
-                        RecentOrder(
-                            orderNo = it.order_no,
-                            type = "outbound",
-                            partner = it.customer_name,
-                            amount = it.total_amount,
-                            date = it.created_at,
-                            plateNumber = it.plate_number,
-                            status = "已完成",
-                            statusColor = StatusSuccess
-                        )
-                    }
-                    recentOrders = (inboundOrders + outboundOrders)
-                        .sortedByDescending { it.date }
-                        .take(5)
-                } else {
-                    val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
-                    val inboundOrders = if (inboundResponse.isSuccessful) {
-                        inboundResponse.body()?.data?.data?.map { order ->
-                            RecentOrder(
-                                orderNo = order.order_no,
-                                type = "inbound",
-                                partner = order.supplier_name,
-                                amount = order.total_amount,
-                                date = order.created_at,
-                                plateNumber = order.plate_number,
-                                status = "进行中",
-                                statusColor = StatusProcessing
-                            )
-                        } ?: emptyList()
-                    } else emptyList()
-                    
-                    val outboundResponse = ApiClient.getService().getOutboundList(page = 1, perPage = 5)
-                    val outboundOrders = if (outboundResponse.isSuccessful) {
-                        outboundResponse.body()?.data?.data?.map { order ->
-                            RecentOrder(
-                                orderNo = order.order_no,
-                                type = "outbound",
-                                partner = order.customer_name,
-                                amount = order.total_amount,
-                                date = order.created_at,
-                                plateNumber = order.plate_number,
-                                status = "已完成",
-                                statusColor = StatusSuccess
-                            )
-                        } ?: emptyList()
-                    } else emptyList()
-                    
-                    recentOrders = (inboundOrders + outboundOrders)
-                        .sortedByDescending { it.date }
-                        .take(5)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                isLoading = false
-            }
+            // 模拟加载数据
+            kotlinx.coroutines.delay(500)
+            recentOrders = listOf(
+                RecentOrder("IN20260325001", "inbound", "上海钢铁厂", 450000.00, "09:14", "进行中", StatusProcessing),
+                RecentOrder("OUT20260325001", "outbound", "某建筑公司", 100000.00, "08:45", "已完成", StatusSuccess)
+            )
+            isLoading = false
         }
     }
     
@@ -120,15 +53,14 @@ fun HomeScreen(
         color = Color(0xFFF8F9FA)
     ) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // 顶部栏 - 品牌 + 操作员
             item {
                 Spacer(modifier = Modifier.height(16.dp))
             }
             
+            // 顶部栏
             item {
                 Row(
                     modifier = Modifier
@@ -137,7 +69,6 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 品牌标识
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -172,31 +103,8 @@ fun HomeScreen(
                         }
                     }
                     
-                    // 操作员信息 + 头像
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "操作员 042",
-                            color = Color(0xFF666666),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFE0E0E0)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                tint = Color(0xFF999999),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.Logout, contentDescription = "退出")
                     }
                 }
             }
@@ -205,7 +113,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
             
-            // 功能模块 - 2x2 网格
+            // 功能模块
             item {
                 Row(
                     modifier = Modifier
@@ -213,7 +121,6 @@ fun HomeScreen(
                         .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 入库作业
                     FunctionCard(
                         icon = Icons.Default.Login,
                         title = "入库作业",
@@ -223,7 +130,6 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f).height(140.dp)
                     )
                     
-                    // 出库拣货
                     FunctionCard(
                         icon = Icons.Default.Logout,
                         title = "出库拣货",
@@ -246,7 +152,6 @@ fun HomeScreen(
                         .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 查询统计
                     FunctionCard(
                         icon = Icons.Default.TrendingUp,
                         title = "查询统计",
@@ -256,7 +161,6 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f).height(140.dp)
                     )
                     
-                    // 基础数据
                     FunctionCard(
                         icon = Icons.Default.Dns,
                         title = "基础数据",
@@ -272,7 +176,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
             
-            // 最近记录标题
+            // 最近记录
             item {
                 Row(
                     modifier = Modifier
@@ -287,14 +191,6 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF333333)
                     )
-                    TextButton(onClick = { }) {
-                        Text(
-                            text = "查看全部",
-                            color = Color(0xFF999999),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
                 }
             }
             
@@ -302,7 +198,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(12.dp))
             }
             
-            // 最近记录列表
             if (isLoading) {
                 item {
                     Box(
@@ -311,9 +206,7 @@ fun HomeScreen(
                             .height(200.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = EnergyBlue
-                        )
+                        CircularProgressIndicator()
                     }
                 }
             } else if (recentOrders.isEmpty()) {
@@ -324,11 +217,7 @@ fun HomeScreen(
                             .height(200.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "暂无记录",
-                            color = Color(0xFF999999),
-                            fontSize = 14.sp
-                        )
+                        Text("暂无记录", color = Color(0xFF999999))
                     }
                 }
             } else {
@@ -355,12 +244,9 @@ fun FunctionCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .clickable(onClick = onClick),
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
-        ),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(
@@ -406,9 +292,7 @@ fun RecentOrderItem(order: RecentOrder) {
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -423,34 +307,23 @@ fun RecentOrderItem(order: RecentOrder) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 左侧图标背景
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(
-                            if (order.type == "inbound") 
-                                Color(0xFFF0F4FF) 
-                            else 
-                                Color(0xFFF0FFF4)
+                            if (order.type == "inbound") Color(0xFFF0F4FF) else Color(0xFFF0FFF4)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = if (order.type == "inbound") 
-                            Icons.Default.Login 
-                        else 
-                            Icons.Default.Logout,
+                        imageVector = if (order.type == "inbound") Icons.Default.Login else Icons.Default.Logout,
                         contentDescription = null,
-                        tint = if (order.type == "inbound") 
-                            Color(0xFF1976D2) 
-                        else 
-                            Color(0xFF388E3C),
+                        tint = if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFF388E3C),
                         modifier = Modifier.size(28.dp)
                     )
                 }
                 
-                // 中间内容
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -463,7 +336,6 @@ fun RecentOrderItem(order: RecentOrder) {
                             color = Color(0xFF333333)
                         )
                         
-                        // 状态标签
                         Surface(
                             color = order.statusColor.copy(alpha = 0.15f),
                             shape = RoundedCornerShape(12.dp)
@@ -479,30 +351,19 @@ fun RecentOrderItem(order: RecentOrder) {
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = if (order.type == "inbound") 
-                            "供应商：${order.partner}" 
-                        else 
-                            "装载区域：${order.partner}",
+                        text = if (order.type == "inbound") "供应商：${order.partner}" else "装载区域：${order.partner}",
                         fontSize = 13.sp,
                         color = Color(0xFF999999)
                     )
-                    if (!order.plateNumber.isNullOrBlank()) {
-                        Text(
-                            text = "库位：${order.plateNumber}",
-                            fontSize = 12.sp,
-                            color = Color(0xFF999999)
-                        )
-                    }
                 }
             }
             
-            // 右侧时间
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = order.date.replace("T", " ").substring(11, 16),
+                    text = order.time,
                     color = Color(0xFF999999),
                     fontSize = 13.sp
                 )
@@ -522,8 +383,10 @@ data class RecentOrder(
     val type: String,
     val partner: String,
     val amount: Double,
-    val date: String,
-    val plateNumber: String?,
+    val time: String,
     val status: String,
     val statusColor: Color
 )
+
+val StatusSuccess = Color(0xFF388E3C)
+val StatusProcessing = Color(0xFF1976D2)
