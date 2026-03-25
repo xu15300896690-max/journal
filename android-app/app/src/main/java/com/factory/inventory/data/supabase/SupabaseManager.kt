@@ -32,7 +32,10 @@ object SupabaseManager {
         client = createSupabaseClient(
             supabaseUrl = Config.SUPABASE_URL,
             supabaseKey = Config.SUPABASE_ANON_KEY
-        )
+        ) {
+            // 配置 builder（当前 SDK 版本 API 有变化，暂时留空）
+            // TODO: 等待 SDK 稳定后添加具体配置
+        }
         
         isInitialized = true
     }
