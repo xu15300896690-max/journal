@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.LoginRequest
+import com.factory.inventory.data.supabase.SupabaseManager
 import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
@@ -198,11 +199,23 @@ fun LoginScreen(
                             
                             scope.launch {
                                 try {
-                                    if (Config.USE_LOCAL_DATA) {
+                                    if (Config.USE_SUPABASE) {
+                                        // ✅ 使用 Supabase 登录
+                                        // 支持邮箱或手机号格式
+                                        val isEmail = username.contains("@")
+                                        if (isEmail) {
+                                            SupabaseManager.loginWithEmail(username, password)
+                                        } else {
+                                            SupabaseManager.loginWithPhone(username, password)
+                                        }
+                                        onLoginSuccess()
+                                    } else if (Config.USE_LOCAL_DATA) {
+                                        // 本地测试模式
                                         kotlinx.coroutines.delay(500)
                                         ApiClient.setToken("test_token_" + System.currentTimeMillis())
                                         onLoginSuccess()
                                     } else {
+                                        // Flask 后端模式
                                         val response = ApiClient.getService().login(
                                             LoginRequest(username, password)
                                         )
@@ -216,7 +229,7 @@ fun LoginScreen(
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    errorMessage = "网络错误：${e.message}"
+                                    errorMessage = "登录失败：${e.message}"
                                 } finally {
                                     isLoading = false
                                 }
@@ -260,8 +273,44 @@ fun LoginScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // 测试环境提示
-            if (Config.USE_LOCAL_DATA) {
+            // 环境提示
+            if (Config.USE_SUPABASE) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE8F5E9)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Cloud,
+                                contentDescription = null,
+                                tint = Color(0xFF2E7D32),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "☁️ Supabase 云端模式",
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF2E7D32)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
+                            fontSize = 13.sp,
+                            color = Color(0xFF1B5E20),
+                            lineHeight = 20.sp
+                        )
+                    }
+                }
+            } else if (Config.USE_LOCAL_DATA) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -297,12 +346,6 @@ fun LoginScreen(
                         )
                     }
                 }
-            } else {
-                Text(
-                    text = "默认账号：admin / admin123",
-                    fontSize = 13.sp,
-                    color = Color(0xFFB0B0B0)
-                )
             }
         }
     }
