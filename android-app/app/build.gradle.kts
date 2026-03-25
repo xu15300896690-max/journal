@@ -28,12 +28,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
             buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
             buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY3dtc21taG5yb250cG53cGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTQ3MTUsImV4cCI6MjA4OTk5MDcxNX0.m13yqDstd_QNL1gc6apwO7lJuKl1QmZ9ARAbwYPx4MA\"")
         }
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
             buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
             buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY3dtc21taG5yb250cG53cGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTQ3MTUsImV4cCI6MjA4OTk5MDcxNX0.m13yqDstd_QNL1gc6apwO7lJuKl1QmZ9ARAbwYPx4MA\"")
         }
@@ -51,10 +49,6 @@ android {
     
     kotlinOptions {
         jvmTarget = "17"
-    }
-    
-    buildFeatures {
-        compose = true
     }
     
     composeOptions {
@@ -85,9 +79,6 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.5")
     
-    // Networking (Supabase 使用 Ktor)
-    // Flask Retrofit 已移除
-    
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     
@@ -96,6 +87,7 @@ dependencies {
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
     // Supabase - 生产环境云端数据库集成

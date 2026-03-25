@@ -5,17 +5,10 @@ import com.factory.inventory.BuildConfig
 /**
  * 应用配置
  * 
- * ✅ 已移除 Flask 后端
  * ✅ 完全使用 Supabase 云端数据库
+ * ❌ Flask 后端已移除
  */
 object Config {
-    // ==================== 后端模式 ====================
-    
-    // ✅ 生产环境：使用 Supabase 云端数据库
-    // ❌ Flask 后端已移除
-    const val USE_SUPABASE = true
-    const val USE_LOCAL_DATA = false
-    
     // ==================== Supabase 配置 ====================
     
     const val SUPABASE_URL = BuildConfig.SUPABASE_URL
@@ -42,7 +35,4 @@ object Config {
     
     // 显示日志
     const val DEBUG_LOGS = true
-    
-    // 网络请求日志
-    const val HTTP_LOGS = true
 }

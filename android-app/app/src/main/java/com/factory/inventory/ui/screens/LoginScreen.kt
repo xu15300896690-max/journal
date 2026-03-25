@@ -19,9 +19,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.factory.inventory.data.supabase.SupabaseManager
+import com.factory.inventory.data.repository.AuthRepository
 import com.factory.inventory.ui.theme.*
-import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -204,8 +203,16 @@ fun LoginScreen(
                             scope.launch {
                                 try {
                                     // ✅ 使用 Supabase 登录
-                                    SupabaseManager.loginWithEmail(email, password)
-                                    onLoginSuccess()
+                                    val result = AuthRepository.loginWithEmail(email, password)
+                                    
+                                    result.fold(
+                                        onSuccess = { user ->
+                                            onLoginSuccess()
+                                        },
+                                        onFailure = { e ->
+                                            errorMessage = "登录失败：${e.message ?: "未知错误"}"
+                                        }
+                                    )
                                 } catch (e: Exception) {
                                     errorMessage = "登录失败：${e.message ?: "未知错误"}"
                                 } finally {
@@ -252,41 +259,39 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             // 环境提示
-            if (Config.USE_SUPABASE) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE8F5E9)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE8F5E9)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Cloud,
-                                contentDescription = null,
-                                tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = "☁️ 生产环境：Supabase 云端数据库",
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF2E7D32)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Icon(
+                            Icons.Default.Cloud,
+                            contentDescription = null,
+                            tint = Color(0xFF2E7D32),
+                            modifier = Modifier.size(20.dp)
+                        )
                         Text(
-                            text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
-                            fontSize = 13.sp,
-                            color = Color(0xFF1B5E20),
-                            lineHeight = 20.sp
+                            text = "☁️ Supabase 云端数据库",
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF2E7D32)
                         )
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
+                        fontSize = 13.sp,
+                        color = Color(0xFF1B5E20),
+                        lineHeight = 20.sp
+                    )
                 }
             }
         }
