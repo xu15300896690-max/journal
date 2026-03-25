@@ -6,18 +6,25 @@ import com.factory.inventory.BuildConfig
  * 应用配置
  */
 object Config {
-    // ==================== 网络配置 ====================
+    // ==================== 后端模式 ====================
     
-    // 后端模式：true=Supabase, false=Flask
-    const val USE_SUPABASE = false  // 切换为 true 使用 Supabase
-    const val USE_LOCAL_DATA = !USE_SUPABASE  // 本地测试数据
+    // true = 使用 Supabase 云端数据库
+    // false = 使用 Flask 本地服务器
+    const val USE_SUPABASE = false  // ⚠️ 接入 Supabase 时改为 true
     
-    // Flask 后端地址
-    const val BASE_URL = BuildConfig.BASE_URL
+    // 本地测试数据（开发调试用）
+    const val USE_LOCAL_DATA = !USE_SUPABASE
     
-    // Supabase 配置
+    // ==================== Supabase 配置 ====================
+    
+    // ⚠️ 在 build.gradle.kts 中配置实际值
     const val SUPABASE_URL = BuildConfig.SUPABASE_URL
     const val SUPABASE_ANON_KEY = BuildConfig.SUPABASE_ANON_KEY
+    
+    // ==================== Flask 后端配置 ====================
+    
+    // Flask 服务器地址（本地网络）
+    const val BASE_URL = BuildConfig.BASE_URL
     
     // 超时时间（秒）
     const val CONNECT_TIMEOUT = 30L
@@ -39,4 +46,12 @@ object Config {
     
     // 实时同步（Supabase Realtime）
     const val ENABLE_REALTIME = USE_SUPABASE
+    
+    // ==================== 调试选项 ====================
+    
+    // 显示日志
+    const val DEBUG_LOGS = true
+    
+    // 网络请求日志
+    const val HTTP_LOGS = true
 }
