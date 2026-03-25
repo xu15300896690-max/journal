@@ -28,7 +28,7 @@ object BaseDataRepository {
         return try {
             Log.d(TAG, "获取供应商列表")
             
-            val result = SupabaseClient.getClient().postgrest["suppliers"]
+            val result = SupabaseClient.client.postgrest["suppliers"]
                 .select {
                     order("created_at") { ascending = false }
                 }
@@ -49,7 +49,7 @@ object BaseDataRepository {
         return try {
             Log.d(TAG, "获取客户列表")
             
-            val result = SupabaseClient.getClient().postgrest["customers"]
+            val result = SupabaseClient.client.postgrest["customers"]
                 .select {
                     order("created_at") { ascending = false }
                 }
@@ -70,7 +70,7 @@ object BaseDataRepository {
         return try {
             Log.d(TAG, "获取物品列表")
             
-            val result = SupabaseClient.getClient().postgrest["items"]
+            val result = SupabaseClient.client.postgrest["items"]
                 .select {
                     order("created_at") { ascending = false }
                 }
@@ -91,7 +91,7 @@ object BaseDataRepository {
         return try {
             Log.d(TAG, "获取仓库列表")
             
-            val result = SupabaseClient.getClient().postgrest["warehouses"]
+            val result = SupabaseClient.client.postgrest["warehouses"]
                 .select {
                     order("created_at") { ascending = false }
                 }

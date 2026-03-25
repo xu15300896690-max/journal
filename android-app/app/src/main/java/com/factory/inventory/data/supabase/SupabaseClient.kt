@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 /**
  * Supabase 客户端单例
  * 
- * ✅ 完全使用 Supabase 云端数据库
+ * ✅ 完全使用 Supabase 云端数据库 v3.4.1
  * ✅ 已移除 Flask 后端
  */
 object SupabaseClient {
@@ -19,10 +19,12 @@ object SupabaseClient {
     private const val TAG = "SupabaseClient"
     
     // Supabase 客户端实例
-    private val client = createSupabaseClient(
+    val client = createSupabaseClient(
         supabaseUrl = Config.SUPABASE_URL,
         supabaseKey = Config.SUPABASE_ANON_KEY
-    )
+    ) {
+        // Supabase SDK 3.x 配置
+    }
     
     /**
      * 检查是否已初始化
