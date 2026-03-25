@@ -1,7 +1,6 @@
 package com.factory.inventory.data.supabase
 
 import android.content.Context
-import com.factory.inventory.data.model.*
 import com.factory.inventory.util.Config
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
@@ -105,45 +104,45 @@ object SupabaseManager {
     /**
      * 获取供应商列表
      */
-    suspend fun getSuppliers(): List<Supplier> {
+    suspend fun getSuppliers(): List<SupplierModel> {
         return getClient().postgrest["suppliers"]
             .select {
                 order("created_at", ascending = false)
             }
-            .decodeList<Supplier>()
+            .decodeList<SupplierModel>()
     }
     
     /**
      * 获取客户列表
      */
-    suspend fun getCustomers(): List<Customer> {
+    suspend fun getCustomers(): List<CustomerModel> {
         return getClient().postgrest["customers"]
             .select {
                 order("created_at", ascending = false)
             }
-            .decodeList<Customer>()
+            .decodeList<CustomerModel>()
     }
     
     /**
      * 获取物品列表
      */
-    suspend fun getItems(): List<Item> {
+    suspend fun getItems(): List<ItemModel> {
         return getClient().postgrest["items"]
             .select {
                 order("created_at", ascending = false)
             }
-            .decodeList<Item>()
+            .decodeList<ItemModel>()
     }
     
     /**
      * 获取仓库列表
      */
-    suspend fun getWarehouses(): List<Warehouse> {
+    suspend fun getWarehouses(): List<WarehouseModel> {
         return getClient().postgrest["warehouses"]
             .select {
                 order("created_at", ascending = false)
             }
-            .decodeList<Warehouse>()
+            .decodeList<WarehouseModel>()
     }
     
     // ==================== 入库管理 ====================
@@ -157,7 +156,7 @@ object SupabaseManager {
         status: String? = null,
         startDate: String? = null,
         endDate: String? = null
-    ): List<InboundOrder> {
+    ): List<InboundOrderModel> {
         val from = (page - 1) * perPage
         val to = from + perPage - 1
         
@@ -187,13 +186,13 @@ object SupabaseManager {
                 order("created_at", ascending = false)
                 range(from, to)
             }
-            .decodeList<InboundOrder>()
+            .decodeList<InboundOrderModel>()
     }
     
     /**
      * 创建入库单（调用数据库函数）
      */
-    suspend fun createInboundOrder(request: InboundOrderRequest): Result<String> {
+    suspend fun createInboundOrder(request: InboundOrderRequestModel): Result<String> {
         return try {
             val json = Json { encodeDefaults = true }
             val itemsJson = json.encodeToJsonElement(request.items).toString()
@@ -226,7 +225,7 @@ object SupabaseManager {
     suspend fun getOutboundList(
         page: Int = 1,
         perPage: Int = 20
-    ): List<OutboundOrder> {
+    ): List<OutboundOrderModel> {
         val from = (page - 1) * perPage
         val to = from + perPage - 1
         
@@ -241,13 +240,13 @@ object SupabaseManager {
                 order("created_at", ascending = false)
                 range(from, to)
             }
-            .decodeList<OutboundOrder>()
+            .decodeList<OutboundOrderModel>()
     }
     
     /**
      * 创建出库单（调用数据库函数）
      */
-    suspend fun createOutboundOrder(request: OutboundOrderRequest): Result<String> {
+    suspend fun createOutboundOrder(request: OutboundOrderRequestModel): Result<String> {
         return try {
             val json = Json { encodeDefaults = true }
             val itemsJson = json.encodeToJsonElement(request.items).toString()
@@ -284,7 +283,7 @@ object SupabaseManager {
     suspend fun getInventory(
         warehouseId: Long? = null,
         lowStock: Boolean = false
-    ): List<Inventory> {
+    ): List<InventoryModel> {
         val query = getClient().postgrest["inventory"]
             .select(
                 columns = Columns.list(
@@ -303,7 +302,7 @@ object SupabaseManager {
                 }
                 order("updated_at", ascending = false)
             }
-            .decodeList<Inventory>()
+            .decodeList<InventoryModel>()
         
         return if (lowStock) {
             query.filter { it.isLow }
@@ -315,7 +314,7 @@ object SupabaseManager {
     /**
      * 监听库存变化（Realtime）
      */
-    fun listenInventoryChanges(warehouseId: Long? = null): Flow<List<Inventory>> = channelFlow {
+    fun listenInventoryChanges(warehouseId: Long? = null): Flow<List<InventoryModel>> = channelFlow {
         val channel = getClient().realtime.channel("inventory_changes")
         
         channel.onPostgresChanges(
@@ -339,33 +338,33 @@ object SupabaseManager {
     /**
      * 获取统计数据
      */
-    suspend fun getStats(): Stats {
+    suspend fun getStats(): StatsModel {
         // 可以通过 RPC 调用数据库统计函数，或者直接查询
         // 这里简化处理，实际应该创建专门的统计函数
-        return Stats()
+        return StatsModel()
     }
 }
 
 // ==================== 辅助数据类 ====================
 
 @kotlinx.serialization.Serializable
-private data class InboundOrderResult(
+private data class InboundOrderResultModel(
     val order_id: Long,
     val order_no: String
 )
 
 @kotlinx.serialization.Serializable
-private data class OutboundOrderResult(
+private data class OutboundOrderResultModel(
     val order_id: Long,
     val order_no: String,
     val success: Boolean,
     val message: String
 )
 
-private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResult {
+private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResultModel {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }
 
-private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResult {
+private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResultModel {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }

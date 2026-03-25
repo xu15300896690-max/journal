@@ -3,6 +3,11 @@ package com.factory.inventory.data.model
 import com.google.gson.annotations.SerializedName
 
 /**
+ * Flask 后端 API 数据模型
+ * 用于与 Flask/SQLite 后端交互
+ */
+
+/**
  * 通用 API 响应
  */
 data class ApiResponse<T>(
@@ -29,6 +34,9 @@ data class PagedResponse<T>(
 
 // ==================== 认证模型 ====================
 
+/**
+ * 登录请求（Flask 后端用）
+ */
 data class LoginRequest(
     val username: String,
     val password: String
@@ -54,150 +62,160 @@ data class UserInfo(
     val role: String
 )
 
-// ==================== 基础数据模型 ====================
+// ==================== 基础数据 ====================
 
+/**
+ * 供应商（Flask 后端用）
+ */
 data class Supplier(
-    val id: Int? = null,
-    val name: String,
-    val contact: String? = null,
-    val phone: String? = null,
-    val address: String? = null,
-    val note: String? = null
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("contact") val contact: String? = null,
+    @SerializedName("phone") val phone: String? = null,
+    @SerializedName("address") val address: String? = null
 )
 
+/**
+ * 客户（Flask 后端用）
+ */
 data class Customer(
-    val id: Int? = null,
-    val name: String,
-    val contact: String? = null,
-    val phone: String? = null,
-    val address: String? = null,
-    val note: String? = null
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("contact") val contact: String? = null,
+    @SerializedName("phone") val phone: String? = null,
+    @SerializedName("address") val address: String? = null
 )
 
+/**
+ * 物品（Flask 后端用）
+ */
 data class Item(
-    val id: Int? = null,
-    val name: String,
-    val code: String? = null,
-    val spec: String? = null,
-    val unit: String = "件",
-    val min_stock: Int = 0,
-    val note: String? = null
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("code") val code: String? = null,
+    @SerializedName("spec") val spec: String? = null,
+    @SerializedName("unit") val unit: String = "件",
+    @SerializedName("min_stock") val min_stock: Int = 0
 )
 
+/**
+ * 仓库（Flask 后端用）
+ */
 data class Warehouse(
-    val id: Int? = null,
-    val name: String,
-    val code: String? = null,
-    val address: String? = null,
-    val manager: String? = null,
-    val phone: String? = null
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("code") val code: String? = null
 )
 
-// ==================== 入库模型 ====================
+// ==================== 入库相关 ====================
 
+/**
+ * 入库单请求（Flask 后端用）
+ */
 data class InboundOrderRequest(
-    val warehouse_id: Int,
-    val supplier_id: Int,
-    val plate_number: String? = null,
-    val driver_name: String? = null,
-    val driver_phone: String? = null,
-    val items: List<InboundItemRequest>,
-    val note: String? = null
+    @SerializedName("warehouse_id") val warehouse_id: Int,
+    @SerializedName("supplier_id") val supplier_id: Int,
+    @SerializedName("plate_number") val plate_number: String?,
+    @SerializedName("driver_name") val driver_name: String?,
+    @SerializedName("driver_phone") val driver_phone: String?,
+    @SerializedName("items") val items: List<InboundItemRequest>,
+    @SerializedName("note") val note: String?
 )
 
+/**
+ * 入库明细请求（Flask 后端用）
+ */
 data class InboundItemRequest(
-    val item_id: Int,
-    val location_id: Int? = null,
-    val quantity: Int,
-    val unit: String = "件",
-    val gross_weight: Double? = null,
-    val tare_weight: Double? = null,
-    val net_weight: Double? = null,
-    val weight_unit: String = "吨",
-    val unit_price: Double = 0.0,
-    val batch_no: String? = null,
-    val note: String? = null
+    @SerializedName("item_id") val item_id: Int,
+    @SerializedName("quantity") val quantity: Int,
+    @SerializedName("unit") val unit: String,
+    @SerializedName("unit_price") val unit_price: Double,
+    @SerializedName("net_weight") val net_weight: Double? = null,
+    @SerializedName("weight_unit") val weight_unit: String = "吨"
 )
 
-data class InboundOrderResponse(
-    val order_no: String,
-    val id: Int
-)
-
+/**
+ * 入库单（Flask 后端用）
+ */
 data class InboundOrder(
-    val id: Int,
-    val order_no: String,
-    val supplier_name: String,
-    val warehouse_name: String,
-    val plate_number: String?,
-    val driver_name: String?,
-    val total_amount: Double,
-    val status: String,
-    val order_date: String,
-    val created_at: String
+    @SerializedName("id") val id: Int,
+    @SerializedName("order_no") val order_no: String,
+    @SerializedName("supplier_name") val supplier_name: String,
+    @SerializedName("warehouse_name") val warehouse_name: String,
+    @SerializedName("plate_number") val plate_number: String?,
+    @SerializedName("driver_name") val driver_name: String?,
+    @SerializedName("total_amount") val total_amount: Double,
+    @SerializedName("status") val status: String,
+    @SerializedName("created_at") val created_at: String
 )
 
-// ==================== 出库模型 ====================
+// ==================== 出库相关 ====================
 
+/**
+ * 出库单请求（Flask 后端用）
+ */
 data class OutboundOrderRequest(
-    val warehouse_id: Int,
-    val customer_id: Int,
-    val plate_number: String? = null,
-    val driver_name: String? = null,
-    val driver_phone: String? = null,
-    val items: List<OutboundItemRequest>,
-    val note: String? = null
+    @SerializedName("warehouse_id") val warehouse_id: Int,
+    @SerializedName("customer_id") val customer_id: Int,
+    @SerializedName("plate_number") val plate_number: String?,
+    @SerializedName("driver_name") val driver_name: String?,
+    @SerializedName("driver_phone") val driver_phone: String?,
+    @SerializedName("items") val items: List<OutboundItemRequest>,
+    @SerializedName("note") val note: String?
 )
 
+/**
+ * 出库明细请求（Flask 后端用）
+ */
 data class OutboundItemRequest(
-    val item_id: Int,
-    val location_id: Int? = null,
-    val quantity: Int,
-    val unit: String = "件",
-    val unit_price: Double = 0.0,
-    val batch_no: String? = null,
-    val note: String? = null
+    @SerializedName("item_id") val item_id: Int,
+    @SerializedName("quantity") val quantity: Int,
+    @SerializedName("unit") val unit: String,
+    @SerializedName("unit_price") val unit_price: Double
 )
 
-data class OutboundOrderResponse(
-    val order_no: String,
-    val id: Int
-)
-
+/**
+ * 出库单（Flask 后端用）
+ */
 data class OutboundOrder(
-    val id: Int,
-    val order_no: String,
-    val customer_name: String,
-    val warehouse_name: String,
-    val plate_number: String?,
-    val total_amount: Double,
-    val status: String,
-    val order_date: String,
-    val created_at: String
+    @SerializedName("id") val id: Int,
+    @SerializedName("order_no") val order_no: String,
+    @SerializedName("customer_name") val customer_name: String,
+    @SerializedName("warehouse_name") val warehouse_name: String,
+    @SerializedName("plate_number") val plate_number: String?,
+    @SerializedName("total_amount") val total_amount: Double,
+    @SerializedName("status") val status: String,
+    @SerializedName("created_at") val created_at: String
 )
 
-// ==================== 库存模型 ====================
+// ==================== 库存相关 ====================
 
+/**
+ * 库存项（Flask 后端用）
+ */
 data class InventoryItem(
-    val id: Int,
-    val item_name: String,
-    val item_code: String?,
-    val warehouse_name: String,
-    val quantity: Int,
-    val unit: String,
-    val min_stock: Int,
-    val is_low: Boolean
+    @SerializedName("id") val id: Int,
+    @SerializedName("item_name") val item_name: String,
+    @SerializedName("item_code") val item_code: String? = null,
+    @SerializedName("warehouse_name") val warehouse_name: String,
+    @SerializedName("quantity") val quantity: Int,
+    @SerializedName("unit") val unit: String,
+    @SerializedName("min_stock") val min_stock: Int,
+    @SerializedName("is_low") val is_low: Boolean
 )
 
-// ==================== 统计模型 ====================
+// ==================== 统计相关 ====================
 
+/**
+ * 统计数据（Flask 后端用）
+ */
 data class Stats(
-    val inbound_today: Double,
-    val outbound_today: Double,
-    val inbound_month: Double,
-    val outbound_month: Double,
-    val profit_today: Double,
-    val profit_month: Double,
-    val total_items: Int,
-    val low_stock_count: Int
+    @SerializedName("inbound_today") val inbound_today: Double = 0.0,
+    @SerializedName("outbound_today") val outbound_today: Double = 0.0,
+    @SerializedName("inbound_month") val inbound_month: Double = 0.0,
+    @SerializedName("outbound_month") val outbound_month: Double = 0.0,
+    @SerializedName("profit_today") val profit_today: Double = 0.0,
+    @SerializedName("profit_month") val profit_month: Double = 0.0,
+    @SerializedName("total_items") val total_items: Int = 0,
+    @SerializedName("low_stock_count") val low_stock_count: Int = 0
 )

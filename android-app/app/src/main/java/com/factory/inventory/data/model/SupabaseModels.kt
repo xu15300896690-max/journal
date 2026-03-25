@@ -1,4 +1,4 @@
-package com.factory.inventory.data.model
+package com.factory.inventory.data.supabase
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 // ==================== 基础数据 ====================
 
 @Serializable
-data class Supplier(
+data class SupplierModel(
     @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("contact") val contact: String? = null,
@@ -22,7 +22,7 @@ data class Supplier(
 )
 
 @Serializable
-data class Customer(
+data class CustomerModel(
     @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("contact") val contact: String? = null,
@@ -33,7 +33,7 @@ data class Customer(
 )
 
 @Serializable
-data class Item(
+data class ItemModel(
     @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("code") val code: String? = null,
@@ -47,7 +47,7 @@ data class Item(
 )
 
 @Serializable
-data class Warehouse(
+data class WarehouseModel(
     @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("code") val code: String? = null,
@@ -58,7 +58,7 @@ data class Warehouse(
 )
 
 @Serializable
-data class Location(
+data class LocationModel(
     @SerialName("id") val id: Long,
     @SerialName("warehouse_id") val warehouseId: Long,
     @SerialName("code") val code: String,
@@ -69,7 +69,7 @@ data class Location(
 // ==================== 入库相关 ====================
 
 @Serializable
-data class InboundOrder(
+data class InboundOrderModel(
     @SerialName("id") val id: Long,
     @SerialName("order_no") val orderNo: String,
     @SerialName("warehouse_id") val warehouseId: Long,
@@ -85,15 +85,15 @@ data class InboundOrder(
     @SerialName("completed_at") val completedAt: String? = null,
     @SerialName("note") val note: String? = null,
     // 关联数据（通过 JOIN 获取）
-    @SerialName("suppliers") val supplier: Supplier? = null,
-    @SerialName("warehouses") val warehouse: Warehouse? = null
+    @SerialName("suppliers") val supplier: SupplierModel? = null,
+    @SerialName("warehouses") val warehouse: WarehouseModel? = null
 ) {
     val supplierName: String get() = supplier?.name ?: ""
     val warehouseName: String get() = warehouse?.name ?: ""
 }
 
 @Serializable
-data class InboundItem(
+data class InboundItemModel(
     @SerialName("id") val id: Long,
     @SerialName("order_id") val orderId: Long,
     @SerialName("item_id") val itemId: Long,
@@ -113,18 +113,18 @@ data class InboundItem(
 )
 
 @Serializable
-data class InboundOrderRequest(
+data class InboundOrderRequestModel(
     @SerialName("warehouse_id") val warehouseId: Long,
     @SerialName("supplier_id") val supplierId: Long,
     @SerialName("plate_number") val plateNumber: String?,
     @SerialName("driver_name") val driverName: String?,
     @SerialName("driver_phone") val driverPhone: String?,
-    @SerialName("items") val items: List<InboundItemRequest>,
+    @SerialName("items") val items: List<InboundItemRequestModel>,
     @SerialName("note") val note: String?
 )
 
 @Serializable
-data class InboundItemRequest(
+data class InboundItemRequestModel(
     @SerialName("item_id") val itemId: Long,
     @SerialName("location_id") val locationId: Long?,
     @SerialName("quantity") val quantity: Int,
@@ -141,7 +141,7 @@ data class InboundItemRequest(
 // ==================== 出库相关 ====================
 
 @Serializable
-data class OutboundOrder(
+data class OutboundOrderModel(
     @SerialName("id") val id: Long,
     @SerialName("order_no") val orderNo: String,
     @SerialName("warehouse_id") val warehouseId: Long,
@@ -157,15 +157,15 @@ data class OutboundOrder(
     @SerialName("completed_at") val completedAt: String? = null,
     @SerialName("note") val note: String? = null,
     // 关联数据
-    @SerialName("customers") val customer: Customer? = null,
-    @SerialName("warehouses") val warehouse: Warehouse? = null
+    @SerialName("customers") val customer: CustomerModel? = null,
+    @SerialName("warehouses") val warehouse: WarehouseModel? = null
 ) {
     val customerName: String get() = customer?.name ?: ""
     val warehouseName: String get() = warehouse?.name ?: ""
 }
 
 @Serializable
-data class OutboundItem(
+data class OutboundItemModel(
     @SerialName("id") val id: Long,
     @SerialName("order_id") val orderId: Long,
     @SerialName("item_id") val itemId: Long,
@@ -179,18 +179,18 @@ data class OutboundItem(
 )
 
 @Serializable
-data class OutboundOrderRequest(
+data class OutboundOrderRequestModel(
     @SerialName("warehouse_id") val warehouseId: Long,
     @SerialName("customer_id") val customerId: Long,
     @SerialName("plate_number") val plateNumber: String?,
     @SerialName("driver_name") val driverName: String?,
     @SerialName("driver_phone") val driverPhone: String?,
-    @SerialName("items") val items: List<OutboundItemRequest>,
+    @SerialName("items") val items: List<OutboundItemRequestModel>,
     @SerialName("note") val note: String?
 )
 
 @Serializable
-data class OutboundItemRequest(
+data class OutboundItemRequestModel(
     @SerialName("item_id") val itemId: Long,
     @SerialName("location_id") val locationId: Long?,
     @SerialName("quantity") val quantity: Int,
@@ -203,7 +203,7 @@ data class OutboundItemRequest(
 // ==================== 库存相关 ====================
 
 @Serializable
-data class Inventory(
+data class InventoryModel(
     @SerialName("id") val id: Long,
     @SerialName("item_id") val itemId: Long,
     @SerialName("warehouse_id") val warehouseId: Long,
@@ -215,8 +215,8 @@ data class Inventory(
     @SerialName("last_outbound") val lastOutbound: String? = null,
     @SerialName("updated_at") val updatedAt: String,
     // 关联数据
-    @SerialName("items") val item: Item? = null,
-    @SerialName("warehouses") val warehouse: Warehouse? = null
+    @SerialName("items") val item: ItemModel? = null,
+    @SerialName("warehouses") val warehouse: WarehouseModel? = null
 ) {
     val itemName: String get() = item?.name ?: ""
     val itemCode: String? get() = item?.code
@@ -228,7 +228,7 @@ data class Inventory(
 // ==================== 统计相关 ====================
 
 @Serializable
-data class Stats(
+data class StatsModel(
     @SerialName("inbound_today") val inboundToday: Double = 0.0,
     @SerialName("outbound_today") val outboundToday: Double = 0.0,
     @SerialName("inbound_month") val inboundMonth: Double = 0.0,
@@ -242,7 +242,7 @@ data class Stats(
 // ==================== 用户认证 ====================
 
 @Serializable
-data class UserProfile(
+data class UserProfileModel(
     @SerialName("id") val id: String,
     @SerialName("username") val username: String,
     @SerialName("real_name") val realName: String? = null,
@@ -252,13 +252,13 @@ data class UserProfile(
 )
 
 @Serializable
-data class LoginRequest(
+data class SupabaseLoginRequest(
     @SerialName("email") val email: String,
     @SerialName("password") val password: String
 )
 
 @Serializable
-data class SignUpRequest(
+data class SignUpRequestModel(
     @SerialName("email") val email: String,
     @SerialName("password") val password: String,
     @SerialName("username") val username: String,
