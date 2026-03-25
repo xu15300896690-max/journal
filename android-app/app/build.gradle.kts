@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
 android {
@@ -27,7 +28,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://your-project.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
         }
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://your-project.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
+        }
+    }
+    
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
     
     compileOptions {
@@ -85,6 +99,14 @@ dependencies {
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    
+    // Supabase (可选，USE_SUPABASE=true 时启用)
+    // implementation(platform("io.github.jan-tennert.supabase:bom:2.0.0"))
+    // implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    // implementation("io.github.jan-tennert.supabase:auth-kt")
+    // implementation("io.github.jan-tennert.supabase:realtime-kt")
+    // implementation("io.ktor:ktor-client-android:2.3.7")
     
     // ML Kit - Barcode Scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
