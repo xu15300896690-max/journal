@@ -85,11 +85,8 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.5")
     
-    // Networking
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    // Networking (Supabase 使用 Ktor)
+    // Flask Retrofit 已移除
     
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")

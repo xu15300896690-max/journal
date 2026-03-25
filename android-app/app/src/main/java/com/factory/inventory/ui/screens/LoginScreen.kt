@@ -19,8 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.factory.inventory.data.api.ApiClient
-import com.factory.inventory.data.model.LoginRequest
+import com.factory.inventory.data.supabase.SupabaseManager
 import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
@@ -30,7 +29,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     onLoginSuccess: () -> Unit = {}
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -123,16 +122,16 @@ fun LoginScreen(
                         color = TextPrimary
                     )
                     
-                    // 用户名/邮箱
+                    // 邮箱
                     OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("邮箱/用户名") },
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("邮箱") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         leadingIcon = {
                             Icon(
-                                Icons.Default.Person,
+                                Icons.Default.Email,
                                 contentDescription = null,
                                 tint = EnergyBlue
                             )
@@ -194,32 +193,21 @@ fun LoginScreen(
                     // 登录按钮
                     Button(
                         onClick = {
+                            if (email.isBlank() || password.isBlank()) {
+                                errorMessage = "请输入邮箱和密码"
+                                return@Button
+                            }
+                            
                             isLoading = true
                             errorMessage = null
                             
                             scope.launch {
                                 try {
-                                    if (Config.USE_LOCAL_DATA) {
-                                        // 本地测试模式
-                                        kotlinx.coroutines.delay(500)
-                                        ApiClient.setToken("test_token_" + System.currentTimeMillis())
-                                        onLoginSuccess()
-                                    } else {
-                                        // 使用 Flask 后端登录（Supabase SDK 待修复）
-                                        val response = ApiClient.getService().login(
-                                            LoginRequest(username, password)
-                                        )
-                                        
-                                        if (response.isSuccessful && response.body()?.success == true) {
-                                            val token = response.body()!!.data!!.token
-                                            ApiClient.setToken(token)
-                                            onLoginSuccess()
-                                        } else {
-                                            errorMessage = response.body()?.message ?: "登录失败"
-                                        }
-                                    }
+                                    // ✅ 使用 Supabase 登录
+                                    SupabaseManager.loginWithEmail(email, password)
+                                    onLoginSuccess()
                                 } catch (e: Exception) {
-                                    errorMessage = "登录失败：${e.message}"
+                                    errorMessage = "登录失败：${e.message ?: "未知错误"}"
                                 } finally {
                                     isLoading = false
                                 }
@@ -268,7 +256,7 @@ fun LoginScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF3E0)
+                        containerColor = Color(0xFFE8F5E9)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -280,58 +268,22 @@ fun LoginScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                Icons.Default.Info,
+                                Icons.Default.Cloud,
                                 contentDescription = null,
-                                tint = Color(0xFFE65100),
+                                tint = Color(0xFF2E7D32),
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "⚠️ Supabase 配置完成，等待 SDK API 更新",
+                                text = "☁️ 生产环境：Supabase 云端数据库",
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE65100)
+                                color = Color(0xFF2E7D32)
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "• Supabase URL 和 Key 已配置\n• 当前 Supabase SDK 2.1.0 API 有变化\n• 暂时使用 Flask 后端登录\n• 等待官方文档更新后修复",
+                            text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
                             fontSize = 13.sp,
-                            color = Color(0xFFE65100),
-                            lineHeight = 20.sp
-                        )
-                    }
-                }
-            } else if (Config.USE_LOCAL_DATA) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White.copy(alpha = 0.1f)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = null,
-                                tint = Color(0xFFE0E0E0),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = "测试环境",
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE0E0E0)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "• 任意账号密码均可登录\n• 使用本地 Mock 数据\n• 不连接服务器",
-                            fontSize = 13.sp,
-                            color = Color(0xFFB0B0B0),
+                            color = Color(0xFF1B5E20),
                             lineHeight = 20.sp
                         )
                     }
