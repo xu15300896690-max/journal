@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.LoginRequest
-import com.factory.inventory.data.supabase.SupabaseManager
 import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
@@ -124,11 +123,11 @@ fun LoginScreen(
                         color = TextPrimary
                     )
                     
-                    // 用户名
+                    // 用户名/邮箱
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("用户名") },
+                        label = { Text("邮箱/用户名") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         leadingIcon = {
@@ -138,7 +137,8 @@ fun LoginScreen(
                                 tint = EnergyBlue
                             )
                         },
-                        singleLine = true
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
                     
                     // 密码
@@ -199,15 +199,13 @@ fun LoginScreen(
                             
                             scope.launch {
                                 try {
-                                    // 当前 Supabase SDK 2.1.0 API 有重大变化，暂时使用 Flask 后端
-                                    // TODO: 等待 Supabase SDK 文档更新后修复 gotrue/postgrest API
                                     if (Config.USE_LOCAL_DATA) {
                                         // 本地测试模式
                                         kotlinx.coroutines.delay(500)
                                         ApiClient.setToken("test_token_" + System.currentTimeMillis())
                                         onLoginSuccess()
                                     } else {
-                                        // Flask 后端模式
+                                        // 使用 Flask 后端登录（Supabase SDK 待修复）
                                         val response = ApiClient.getService().login(
                                             LoginRequest(username, password)
                                         )
@@ -295,7 +293,7 @@ fun LoginScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "• Supabase URL 和 Key 已配置\n• 当前 Supabase SDK 2.1.0 API 有变化\n• 暂时使用 Flask 后端\n• 等待官方文档更新后修复",
+                            text = "• Supabase URL 和 Key 已配置\n• 当前 Supabase SDK 2.1.0 API 有变化\n• 暂时使用 Flask 后端登录\n• 等待官方文档更新后修复",
                             fontSize = 13.sp,
                             color = Color(0xFFE65100),
                             lineHeight = 20.sp
