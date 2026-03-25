@@ -43,7 +43,7 @@ interface ApiService {
     // ==================== 入库管理 ====================
     
     @POST("/api/inbound")
-    suspend fun createInbound(@Body order: InboundOrderRequest): Response<ApiResponse<InboundOrderResponse>>
+    suspend fun createInbound(@Body order: InboundOrderRequest): Response<ApiResponse<IdResponse>>
     
     @GET("/api/inbound")
     suspend fun getInboundList(
@@ -57,7 +57,7 @@ interface ApiService {
     // ==================== 出库管理 ====================
     
     @POST("/api/outbound")
-    suspend fun createOutbound(@Body order: OutboundOrderRequest): Response<ApiResponse<OutboundOrderResponse>>
+    suspend fun createOutbound(@Body order: OutboundOrderRequest): Response<ApiResponse<IdResponse>>
     
     @GET("/api/outbound")
     suspend fun getOutboundList(

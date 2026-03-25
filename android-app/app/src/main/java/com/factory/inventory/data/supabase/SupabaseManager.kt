@@ -4,11 +4,8 @@ import android.content.Context
 import com.factory.inventory.util.Config
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.gotrue.GoTrue
 import io.github.jan.supabase.gotrue.gotrue
-import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.select
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -39,8 +36,8 @@ object SupabaseManager {
             supabaseUrl = Config.SUPABASE_URL,
             supabaseKey = Config.SUPABASE_ANON_KEY
         ) {
-            install(GoTrue)
-            install(Postgrest)
+            install(io.github.jan.supabase.gotrue.GoTrue)
+            install(io.github.jan.supabase.postgrest.Postgrest)
         }
         
         isInitialized = true
@@ -157,12 +154,12 @@ object SupabaseManager {
         startDate: String? = null,
         endDate: String? = null
     ): List<InboundOrderModel> {
-        val from = (page - 1) * perPage
+        val from = ((page - 1) * perPage).toLong()
         val to = from + perPage - 1
         
         return getClient().postgrest["inbound_orders"]
             .select(
-                columns = Columns.list(
+                columns = io.github.jan.supabase.postgrest.query.Columns.list(
                     "*",
                     "suppliers!inner(name)",
                     "warehouses!inner(name)"
@@ -210,7 +207,7 @@ object SupabaseManager {
                 }
             )
             
-            val orderNo = result.decodeInboundOrderResult().orderNo
+            val orderNo = result.decodeInboundOrderResult().order_no
             Result.success(orderNo)
         } catch (e: Exception) {
             Result.failure(e)
@@ -226,12 +223,12 @@ object SupabaseManager {
         page: Int = 1,
         perPage: Int = 20
     ): List<OutboundOrderModel> {
-        val from = (page - 1) * perPage
+        val from = ((page - 1) * perPage).toLong()
         val to = from + perPage - 1
         
         return getClient().postgrest["outbound_orders"]
             .select(
-                columns = Columns.list(
+                columns = io.github.jan.supabase.postgrest.query.Columns.list(
                     "*",
                     "customers!inner(name)",
                     "warehouses!inner(name)"
@@ -266,7 +263,7 @@ object SupabaseManager {
             
             val response = result.decodeOutboundOrderResult()
             if (response.success) {
-                Result.success(response.orderNo)
+                Result.success(response.order_no)
             } else {
                 Result.failure(Exception(response.message))
             }
@@ -286,7 +283,7 @@ object SupabaseManager {
     ): List<InventoryModel> {
         val query = getClient().postgrest["inventory"]
             .select(
-                columns = Columns.list(
+                columns = io.github.jan.supabase.postgrest.query.Columns.list(
                     "*",
                     "items!inner(name, code, min_stock)",
                     "warehouses!inner(name)"
@@ -361,10 +358,10 @@ private data class OutboundOrderResultModel(
     val message: String
 )
 
-private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResultModel {
+private fun io.github.jan.supabase.postgrest.query.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResultModel {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }
 
-private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResultModel {
+private fun io.github.jan.supabase.postgrest.query.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResultModel {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }
