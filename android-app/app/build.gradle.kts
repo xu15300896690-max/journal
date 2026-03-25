@@ -30,12 +30,12 @@ android {
             )
             buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
             buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_Q7sRshluCCgEbGQfLYyuXw_UNamiqwS\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY3dtc21taG5yb250cG53cGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTQ3MTUsImV4cCI6MjA4OTk5MDcxNX0.m13yqDstd_QNL1gc6apwO7lJuKl1QmZ9ARAbwYPx4MA\"")
         }
         debug {
             buildConfigField("String", "BASE_URL", "\"http://192.168.1.100:5000/\"")
             buildConfigField("String", "SUPABASE_URL", "\"https://okcwmsmmhnrontpnwpge.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_Q7sRshluCCgEbGQfLYyuXw_UNamiqwS\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY3dtc21taG5yb250cG53cGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTQ3MTUsImV4cCI6MjA4OTk5MDcxNX0.m13yqDstd_QNL1gc6apwO7lJuKl1QmZ9ARAbwYPx4MA\"")
         }
     }
     
