@@ -101,19 +101,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
-    // Supabase - 云端数据库集成（暂时注释，需要时启用）
-    // 启用步骤:
-    // 1. 在 settings.gradle.kts 中添加 JitPack 仓库
-    // 2. 取消以下依赖注释
-    // 3. 同步 Gradle
-    // implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:functions-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:realtime-kt:2.1.0")
-    // implementation("io.ktor:ktor-client-android:2.3.7")
-    // implementation("io.ktor:ktor-client-core:2.3.7")
-    // implementation("io.ktor:ktor-client-serialization:2.3.7")
-    // implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    // Supabase - 生产环境云端数据库集成
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0")
+    implementation("io.github.jan-tennert.supabase:functions-kt:2.1.0")
+    implementation("io.github.jan-tennert.supabase:realtime-kt:2.1.0")
+    implementation("io.ktor:ktor-client-android:2.3.7")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-serialization:2.3.7")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
     
     // ML Kit - Barcode Scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
