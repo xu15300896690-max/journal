@@ -422,7 +422,7 @@ fun OutboundFormScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     leadingIcon = {
-                        Icon(Icons.Default.Car, contentDescription = null, tint = OutboundOrange)
+                        Icon(Icons.Default.LocalShipping, contentDescription = null, tint = OutboundOrange)
                     },
                     singleLine = true
                 )

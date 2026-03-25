@@ -306,13 +306,15 @@ fun InboundOrderCard(order: InboundOrder) {
 
 @Composable
 fun StatusBadge(status: String) {
-    val (color, text, icon) = when (status) {
-        "completed" -> StatusSuccess to "已完成" to Icons.Default.CheckCircle
-        "pending" -> StatusPending to "待处理" to Icons.Default.Schedule
-        "cancelled" -> StatusError to "已取消" to Icons.Default.Cancel
-        "processing" -> StatusProcessing to "进行中" to Icons.Default.Refresh
-        else -> TextSecondary to status to Icons.Default.Info
+    val statusConfig = when (status) {
+        "completed" -> Triple(StatusSuccess, "已完成", Icons.Default.CheckCircle)
+        "pending" -> Triple(StatusPending, "待处理", Icons.Default.Schedule)
+        "cancelled" -> Triple(StatusError, "已取消", Icons.Default.Cancel)
+        "processing" -> Triple(StatusProcessing, "进行中", Icons.Default.Refresh)
+        else -> Triple(TextSecondary, status, Icons.Default.Info)
     }
+    
+    val (color, text, icon) = statusConfig
     
     Surface(
         color = color.copy(alpha = 0.1f),
@@ -324,7 +326,7 @@ fun StatusBadge(status: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                icon,
+                imageVector = icon,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(14.dp)
@@ -433,7 +435,7 @@ fun InboundFormScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     leadingIcon = {
-                        Icon(Icons.Default.Car, contentDescription = null, tint = EnergyBlue)
+                        Icon(Icons.Default.LocalShipping, contentDescription = null, tint = EnergyBlue)
                     },
                     singleLine = true
                 )
