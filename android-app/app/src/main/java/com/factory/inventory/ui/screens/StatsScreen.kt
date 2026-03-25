@@ -1,21 +1,27 @@
 package com.factory.inventory.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.Stats
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
@@ -52,12 +58,30 @@ fun StatsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("统计报表") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.BarChart,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Text("统计报表")
                     }
                 },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = StatsPurple,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                ),
                 actions = {
                     IconButton(onClick = onNavigateToExport) {
                         Icon(Icons.Default.FileDownload, contentDescription = "导出")
@@ -73,7 +97,7 @@ fun StatsScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = StatsPurple)
             }
         } else if (stats == null) {
             Box(
@@ -82,19 +106,48 @@ fun StatsScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Text("加载失败", color = Color.Gray)
+                Text("加载失败", color = TextSecondary)
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                
                 // 今日统计
                 item {
-                    Text("📊 今日统计", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFF3E5F5)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Today,
+                                    contentDescription = null,
+                                    tint = StatsPurple,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text("今日统计", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+                        }
+                    }
                 }
                 
                 item {
@@ -103,15 +156,17 @@ fun StatsScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
+                            icon = Icons.Default.ArrowDownward,
                             title = "入库金额",
                             value = "¥${String.format("%.2f", stats!!.inbound_today)}",
-                            color = Color(0xFF1976D2),
+                            gradientColors = listOf(Color(0xFF667eea), Color(0xFF764ba2)),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
+                            icon = Icons.Default.ArrowUpward,
                             title = "出库金额",
                             value = "¥${String.format("%.2f", stats!!.outbound_today)}",
-                            color = Color(0xFF4CAF50),
+                            gradientColors = listOf(Color(0xFF11998e), Color(0xFF38ef7d)),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -119,9 +174,14 @@ fun StatsScreen(
                 
                 item {
                     StatCard(
+                        icon = Icons.Default.TrendingUp,
                         title = "今日利润",
                         value = "¥${String.format("%.2f", stats!!.profit_today)}",
-                        color = if (stats!!.profit_today >= 0) Color(0xFF4CAF50) else Color(0xFFF44336),
+                        gradientColors = if (stats!!.profit_today >= 0) {
+                            listOf(Color(0xFF11998e), Color(0xFF38ef7d))
+                        } else {
+                            listOf(Color(0xFFeb3349), Color(0xFFf45c43))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         isProfit = true
                     )
@@ -129,7 +189,32 @@ fun StatsScreen(
                 
                 // 本月统计
                 item {
-                    Text("📈 本月统计", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFE3F2FD)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = InboundBlue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text("本月统计", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+                        }
+                    }
                 }
                 
                 item {
@@ -138,15 +223,17 @@ fun StatsScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
+                            icon = Icons.Default.ArrowDownward,
                             title = "入库金额",
                             value = "¥${String.format("%.2f", stats!!.inbound_month)}",
-                            color = Color(0xFF1976D2),
+                            gradientColors = listOf(Color(0xFF667eea), Color(0xFF764ba2)),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
+                            icon = Icons.Default.ArrowUpward,
                             title = "出库金额",
                             value = "¥${String.format("%.2f", stats!!.outbound_month)}",
-                            color = Color(0xFF4CAF50),
+                            gradientColors = listOf(Color(0xFF11998e), Color(0xFF38ef7d)),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -154,9 +241,14 @@ fun StatsScreen(
                 
                 item {
                     StatCard(
+                        icon = Icons.Default.TrendingUp,
                         title = "本月利润",
                         value = "¥${String.format("%.2f", stats!!.profit_month)}",
-                        color = if (stats!!.profit_month >= 0) Color(0xFF4CAF50) else Color(0xFFF44336),
+                        gradientColors = if (stats!!.profit_month >= 0) {
+                            listOf(Color(0xFF11998e), Color(0xFF38ef7d))
+                        } else {
+                            listOf(Color(0xFFeb3349), Color(0xFFf45c43))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         isProfit = true
                     )
@@ -164,7 +256,32 @@ fun StatsScreen(
                 
                 // 库存统计
                 item {
-                    Text("📦 库存统计", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFFFF3E0)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Inventory,
+                                    contentDescription = null,
+                                    tint = OutboundOrange,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text("库存统计", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+                        }
+                    }
                 }
                 
                 item {
@@ -173,22 +290,24 @@ fun StatsScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
+                            icon = Icons.Default.Category,
                             title = "物品种类",
                             value = "${stats!!.total_items}",
-                            color = Color(0xFF9C27B0),
+                            gradientColors = listOf(Color(0xFFDA22FF), Color(0xFF9733EE)),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
+                            icon = Icons.Default.Warning,
                             title = "库存预警",
                             value = "${stats!!.low_stock_count}",
-                            color = Color(0xFFF44336),
+                            gradientColors = listOf(Color(0xFFeb3349), Color(0xFFf45c43)),
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
                 
                 item {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -197,35 +316,53 @@ fun StatsScreen(
 
 @Composable
 fun StatCard(
+    icon: ImageVector,
     title: String,
     value: String,
-    color: Color,
+    gradientColors: List<Color>,
     modifier: Modifier = Modifier,
     isProfit: Boolean = false
 ) {
     Card(
         modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colors = gradientColors))
                 .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = title,
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                color = color,
-                fontWeight = FontWeight.Bold,
-                fontSize = if (isProfit) 24.sp else 20.sp
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.9f),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = title,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 13.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = value,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (isProfit) 26.sp else 22.sp
+                )
+            }
         }
     }
 }

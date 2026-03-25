@@ -11,17 +11,29 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E)
+    primary = EnergyBlue,
+    secondary = EnergyCyan,
+    tertiary = StatsPurple,
+    background = DarkBackground,
+    surface = DarkSurface,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color.White,
+    onSurface = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    background = Background,
-    surface = Surface
+    primary = EnergyBlue,
+    secondary = EnergyCyan,
+    tertiary = StatsPurple,
+    background = BackgroundGray,
+    surface = CardWhite,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary
 )
 
 @Composable
@@ -35,8 +47,8 @@ fun FactoryInventoryTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = EnergyBlue.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }
 

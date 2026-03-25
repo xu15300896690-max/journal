@@ -1,18 +1,26 @@
 package com.factory.inventory.ui.screens
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.LoginRequest
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
@@ -28,11 +36,17 @@ fun LoginScreen(
     
     val scope = rememberCoroutineScope()
     
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF667eea),
+                        Color(0xFF764ba2)
+                    )
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -41,126 +55,252 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo
-            Text(
-                text = "🏭 工厂出入库管理系统",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
+            Spacer(modifier = Modifier.height(48.dp))
             
-            // 用户名
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("用户名") },
+            // 品牌标识
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                singleLine = true
-            )
-            
-            // 密码
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("密码") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
-            )
-            
-            // 错误提示
-            errorMessage?.let { error ->
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Bolt,
+                    contentDescription = null,
+                    tint = EnergyCyan,
+                    modifier = Modifier.size(48.dp)
                 )
             }
             
-            // 登录按钮
-            Button(
-                onClick = {
-                    isLoading = true
-                    errorMessage = null
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "xurui",
+                fontWeight = FontWeight.Bold,
+                fontSize = 32.sp,
+                color = Color.White
+            )
+            
+            Text(
+                text = "Clean Energy",
+                fontSize = 16.sp,
+                color = Color(0xFFE0E0E0),
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 2.sp
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "仓库管理系统",
+                fontSize = 14.sp,
+                color = Color(0xFFB0B0B0)
+            )
+            
+            Spacer(modifier = Modifier.height(48.dp))
+            
+            // 登录卡片
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "欢迎登录",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = TextPrimary
+                    )
                     
-                    scope.launch {
-                        try {
-                            if (Config.USE_LOCAL_DATA) {
-                                // 测试环境：直接登录成功，不验证账号密码
-                                kotlinx.coroutines.delay(500) // 模拟网络延迟
-                                ApiClient.setToken("test_token_" + System.currentTimeMillis())
-                                onLoginSuccess()
-                            } else {
-                                // 生产环境：验证账号密码
-                                val response = ApiClient.getService().login(
-                                    LoginRequest(username, password)
+                    // 用户名
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("用户名") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = EnergyBlue
+                            )
+                        },
+                        singleLine = true
+                    )
+                    
+                    // 密码
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("密码") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = EnergyBlue
+                            )
+                        },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+                    
+                    // 错误提示
+                    errorMessage?.let { error ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFFFEBEE)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Error,
+                                    contentDescription = null,
+                                    tint = StatusError,
+                                    modifier = Modifier.size(20.dp)
                                 )
-                                
-                                if (response.isSuccessful && response.body()?.success == true) {
-                                    val token = response.body()!!.data!!.token
-                                    ApiClient.setToken(token)
-                                    onLoginSuccess()
-                                } else {
-                                    errorMessage = response.body()?.message ?: "登录失败"
-                                }
+                                Text(
+                                    text = error,
+                                    color = StatusError,
+                                    fontSize = 14.sp
+                                )
                             }
-                        } catch (e: Exception) {
-                            errorMessage = "网络错误：${e.message}"
-                        } finally {
-                            isLoading = false
                         }
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                enabled = !isLoading
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Text("登录", style = MaterialTheme.typography.titleMedium)
+                    
+                    // 登录按钮
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            errorMessage = null
+                            
+                            scope.launch {
+                                try {
+                                    if (Config.USE_LOCAL_DATA) {
+                                        kotlinx.coroutines.delay(500)
+                                        ApiClient.setToken("test_token_" + System.currentTimeMillis())
+                                        onLoginSuccess()
+                                    } else {
+                                        val response = ApiClient.getService().login(
+                                            LoginRequest(username, password)
+                                        )
+                                        
+                                        if (response.isSuccessful && response.body()?.success == true) {
+                                            val token = response.body()!!.data!!.token
+                                            ApiClient.setToken(token)
+                                            onLoginSuccess()
+                                        } else {
+                                            errorMessage = response.body()?.message ?: "登录失败"
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    errorMessage = "网络错误：${e.message}"
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        enabled = !isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = EnergyBlue
+                        )
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Login,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "登录",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
                 }
             }
             
-            // 提示信息
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // 测试环境提示
             if (Config.USE_LOCAL_DATA) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                        containerColor = Color.White.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(
-                            text = "🧪 测试环境",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null,
+                                tint = Color(0xFFE0E0E0),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "测试环境",
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFFE0E0E0)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "• 任意账号密码均可登录\n• 使用本地 Mock 数据\n• 不连接服务器",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            fontSize = 13.sp,
+                            color = Color(0xFFB0B0B0),
+                            lineHeight = 20.sp
                         )
                     }
                 }
             } else {
                 Text(
                     text = "默认账号：admin / admin123",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp)
+                    fontSize = 13.sp,
+                    color = Color(0xFFB0B0B0)
                 )
             }
         }

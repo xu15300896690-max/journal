@@ -1,15 +1,19 @@
 package com.factory.inventory.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,6 +23,7 @@ import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.Supplier
 import com.factory.inventory.data.model.Customer
 import com.factory.inventory.data.model.Item
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
@@ -33,12 +38,30 @@ fun BaseDataScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("基础数据") },
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Business,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Text("基础数据")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = EnergyDark,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -48,15 +71,25 @@ fun BaseDataScreen(
                 .padding(paddingValues)
         ) {
             // 标签页
-            TabRow(
+            ScrollableTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = EnergyDark,
+                contentColor = Color.White,
+                edgePadding = 0.dp,
+                divider = { }
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title) }
+                        text = { 
+                            Text(
+                                title,
+                                fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Normal
+                            )
+                        },
+                        selectedContentColor = Color.White,
+                        unselectedContentColor = Color.White.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -102,7 +135,7 @@ fun SupplierList() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = EnergyBlue)
         }
     } else if (suppliers.isEmpty()) {
         Box(
@@ -110,14 +143,22 @@ fun SupplierList() {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.Business,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE3F2FD)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Business,
+                        contentDescription = null,
+                        tint = InboundBlue,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("暂无供应商", color = Color.Gray)
+                Text("暂无供应商", color = TextSecondary, fontSize = 16.sp)
             }
         }
     } else {
@@ -138,7 +179,10 @@ fun SupplierList() {
 fun SupplierCard(supplier: Supplier) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardWhite
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -146,38 +190,102 @@ fun SupplierCard(supplier: Supplier) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = supplier.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (!supplier.contact.isNullOrBlank()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Business,
+                            contentDescription = null,
+                            tint = InboundBlue,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Text(
-                        text = "👤 ${supplier.contact}",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                }
-                if (!supplier.phone.isNullOrBlank()) {
-                    Text(
-                        text = "📞 ${supplier.phone}",
-                        color = Color.Gray,
-                        fontSize = 14.sp
+                        text = supplier.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = TextPrimary
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            if (!supplier.contact.isNullOrBlank() || !supplier.phone.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (!supplier.contact.isNullOrBlank()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = supplier.contact,
+                                color = TextSecondary,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                    if (!supplier.phone.isNullOrBlank()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = supplier.phone,
+                                color = TextSecondary,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+            
             if (!supplier.address.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "📍 ${supplier.address}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = supplier.address,
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     }
@@ -214,7 +322,7 @@ fun CustomerList() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = EnergyBlue)
         }
     } else if (customers.isEmpty()) {
         Box(
@@ -222,14 +330,22 @@ fun CustomerList() {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.People,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE8F5E9)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.People,
+                        contentDescription = null,
+                        tint = InventoryGreen,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("暂无客户", color = Color.Gray)
+                Text("暂无客户", color = TextSecondary, fontSize = 16.sp)
             }
         }
     } else {
@@ -250,7 +366,10 @@ fun CustomerList() {
 fun CustomerCard(customer: Customer) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardWhite
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -258,38 +377,102 @@ fun CustomerCard(customer: Customer) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = customer.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (!customer.contact.isNullOrBlank()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8F5E9)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.People,
+                            contentDescription = null,
+                            tint = InventoryGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Text(
-                        text = "👤 ${customer.contact}",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                }
-                if (!customer.phone.isNullOrBlank()) {
-                    Text(
-                        text = "📞 ${customer.phone}",
-                        color = Color.Gray,
-                        fontSize = 14.sp
+                        text = customer.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = TextPrimary
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            if (!customer.contact.isNullOrBlank() || !customer.phone.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (!customer.contact.isNullOrBlank()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = customer.contact,
+                                color = TextSecondary,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                    if (!customer.phone.isNullOrBlank()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = customer.phone,
+                                color = TextSecondary,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+            
             if (!customer.address.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "📍 ${customer.address}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = customer.address,
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     }
@@ -326,7 +509,7 @@ fun ItemList() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = EnergyBlue)
         }
     } else if (items.isEmpty()) {
         Box(
@@ -334,14 +517,22 @@ fun ItemList() {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.Inventory,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF3E5F5)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Inventory,
+                        contentDescription = null,
+                        tint = StatsPurple,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("暂无物品", color = Color.Gray)
+                Text("暂无物品", color = TextSecondary, fontSize = 16.sp)
             }
         }
     } else {
@@ -362,7 +553,10 @@ fun ItemList() {
 fun ItemCard(item: Item) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardWhite
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -372,45 +566,90 @@ fun ItemCard(item: Item) {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFF3E5F5)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Category,
+                            contentDescription = null,
+                            tint = StatsPurple,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = item.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = TextPrimary
+                        )
+                        if (!item.code.isNullOrBlank()) {
+                            Text(
+                                text = "编码：${item.code}",
+                                color = TextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+                
                 Text(
-                    text = item.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "${item.unit}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
+                    text = item.unit,
+                    color = TextSecondary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
             
-            if (!item.code.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "编码：${item.code}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            }
+            Spacer(modifier = Modifier.height(8.dp))
             
             if (!item.spec.isNullOrBlank()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Tune,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = "规格：${item.spec}",
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "规格：${item.spec}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
             }
             
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "最低库存：${item.min_stock} ${item.unit}",
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = "最低库存：${item.min_stock} ${item.unit}",
+                    color = TextSecondary,
+                    fontSize = 13.sp
+                )
+            }
         }
     }
 }

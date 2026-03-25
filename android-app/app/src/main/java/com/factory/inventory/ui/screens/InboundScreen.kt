@@ -1,9 +1,12 @@
 package com.factory.inventory.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,7 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -19,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.*
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
@@ -32,7 +39,6 @@ fun InboundScreen(
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     
-    // 加载入库单列表
     LaunchedEffect(Unit) {
         scope.launch {
             try {
@@ -55,12 +61,30 @@ fun InboundScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("入库管理") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowDownward,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Text("入库管理")
                     }
                 },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = EnergyBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                ),
                 actions = {
                     IconButton(onClick = { showForm = true }) {
                         Icon(Icons.Default.Add, contentDescription = "新建入库")
@@ -69,23 +93,27 @@ fun InboundScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { showForm = true },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "新建入库")
-            }
+                containerColor = EnergyBlue,
+                contentColor = Color.White,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("新建入库") }
+            )
         }
     ) { paddingValues ->
         if (showForm) {
             InboundFormScreen(
                 onSubmitted = {
                     showForm = false
-                    // 重新加载列表
                     scope.launch {
-                        val response = ApiClient.getService().getInboundList(page = 1, perPage = 50)
-                        if (response.isSuccessful) {
-                            orders = response.body()?.data?.data ?: emptyList()
+                        if (Config.USE_LOCAL_DATA) {
+                            orders = MockData.mockInboundOrders
+                        } else {
+                            val response = ApiClient.getService().getInboundList(page = 1, perPage = 50)
+                            if (response.isSuccessful) {
+                                orders = response.body()?.data?.data ?: emptyList()
+                            }
                         }
                     }
                 },
@@ -98,7 +126,7 @@ fun InboundScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = EnergyBlue)
             }
         } else if (orders.isEmpty()) {
             Box(
@@ -108,14 +136,22 @@ fun InboundScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Inventory,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color.Gray
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Inventory,
+                            contentDescription = null,
+                            tint = InboundBlue,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("暂无入库记录", color = Color.Gray)
+                    Text("暂无入库记录", color = TextSecondary, fontSize = 16.sp)
                 }
             }
         } else {
@@ -123,11 +159,17 @@ fun InboundScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
                 items(orders) { order ->
                     InboundOrderCard(order)
+                }
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -138,7 +180,10 @@ fun InboundScreen(
 fun InboundOrderCard(order: InboundOrder) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardWhite
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -146,62 +191,112 @@ fun InboundOrderCard(order: InboundOrder) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // 第一行：单号 + 状态
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = order.order_no,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowDownward,
+                            contentDescription = null,
+                            tint = InboundBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Text(
+                        text = order.order_no,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = TextPrimary
+                    )
+                }
                 StatusBadge(order.status)
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // 第二行：供应商 + 仓库
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "📦 ${order.supplier_name}",
-                    color = Color.Gray
-                )
-                Text(
-                    text = "🏭 ${order.warehouse_name}",
-                    color = Color.Gray
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Business,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = order.supplier_name,
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Warehouse,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = order.warehouse_name,
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
             }
             
-            // 第三行：车牌 + 司机
             if (!order.plate_number.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "🚗 ${order.plate_number}  ${order.driver_name ?: ""}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "🚗 ${order.plate_number}",
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
+                    if (!order.driver_name.isNullOrBlank()) {
+                        Text(
+                            text = "👤 ${order.driver_name}",
+                            color = TextSecondary,
+                            fontSize = 13.sp
+                        )
+                    }
+                }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // 第四行：金额 + 时间
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "¥${String.format("%.2f", order.total_amount)}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    fontSize = 20.sp,
+                    color = InboundBlue
                 )
                 Text(
                     text = order.created_at.replace("T", " ").substring(0, 16),
-                    color = Color.Gray,
+                    color = TextSecondary,
                     fontSize = 12.sp
                 )
             }
@@ -211,23 +306,36 @@ fun InboundOrderCard(order: InboundOrder) {
 
 @Composable
 fun StatusBadge(status: String) {
-    val (color, text) = when (status) {
-        "completed" -> Color(0xFF4CAF50) to "已完成"
-        "pending" -> Color(0xFFFF9800) to "待处理"
-        "cancelled" -> Color(0xFFF44336) to "已取消"
-        else -> Color.Gray to status
+    val (color, text, icon) = when (status) {
+        "completed" -> StatusSuccess to "已完成" to Icons.Default.CheckCircle
+        "pending" -> StatusPending to "待处理" to Icons.Default.Schedule
+        "cancelled" -> StatusError to "已取消" to Icons.Default.Cancel
+        "processing" -> StatusProcessing to "进行中" to Icons.Default.Refresh
+        else -> TextSecondary to status to Icons.Default.Info
     }
     
     Surface(
         color = color.copy(alpha = 0.1f),
-        shape = MaterialTheme.shapes.small
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(14.dp)
+            )
+            Text(
+                text = text,
+                color = color,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -258,7 +366,6 @@ fun InboundFormScreen(
     
     val scope = rememberCoroutineScope()
     
-    // 模拟供应商列表
     val suppliers = listOf(
         Supplier(1, "上海钢铁厂", "张三", "13800138000", "上海市"),
         Supplier(2, "五金建材公司", "李四", "13900139000", "苏州市"),
@@ -273,7 +380,12 @@ fun InboundFormScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.Close, contentDescription = "取消")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = EnergyBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -281,12 +393,35 @@ fun InboundFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
             // 车辆信息
             item {
-                Text("🚗 车辆信息", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.LocalShipping,
+                            contentDescription = null,
+                            tint = InboundBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Text("车辆信息", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                }
             }
             
             item {
@@ -296,6 +431,10 @@ fun InboundFormScreen(
                     label = { Text("车牌号") },
                     placeholder = { Text("如：沪 A12345") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Car, contentDescription = null, tint = EnergyBlue)
+                    },
                     singleLine = true
                 )
             }
@@ -306,6 +445,10 @@ fun InboundFormScreen(
                     onValueChange = { driverName = it },
                     label = { Text("司机姓名") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Person, contentDescription = null, tint = EnergyBlue)
+                    },
                     singleLine = true
                 )
             }
@@ -316,6 +459,10 @@ fun InboundFormScreen(
                     onValueChange = { driverPhone = it },
                     label = { Text("司机电话") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Phone, contentDescription = null, tint = EnergyBlue)
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true
                 )
@@ -323,25 +470,38 @@ fun InboundFormScreen(
             
             // 物品信息
             item {
-                Text("📦 物品信息", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8F5E9)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Inventory,
+                            contentDescription = null,
+                            tint = InventoryGreen,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Text("物品信息", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                }
             }
             
             item {
-                ExposedDropdownMenuBox(
-                    expanded = false,
-                    onExpandedChange = {}
-                ) {
-                    OutlinedTextField(
-                        value = suppliers.find { it.id.toString() == supplierId }?.name ?: "选择供应商",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("供应商") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
-                    )
-                }
+                OutlinedTextField(
+                    value = suppliers.find { it.id.toString() == supplierId }?.name ?: "选择供应商",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("供应商") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
+                )
             }
             
             item {
@@ -351,6 +511,10 @@ fun InboundFormScreen(
                     label = { Text("物品名称") },
                     placeholder = { Text("如：钢材、螺丝") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Category, contentDescription = null, tint = EnergyBlue)
+                    },
                     singleLine = true
                 )
             }
@@ -365,6 +529,7 @@ fun InboundFormScreen(
                         onValueChange = { quantity = it },
                         label = { Text("数量") },
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
                     )
@@ -378,9 +543,8 @@ fun InboundFormScreen(
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("单位") },
-                            modifier = Modifier
-                                .width(100.dp)
-                                .menuAnchor(),
+                            modifier = Modifier.width(100.dp),
+                            shape = RoundedCornerShape(12.dp),
                             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
                         )
                     }
@@ -397,6 +561,7 @@ fun InboundFormScreen(
                         onValueChange = { weight = it },
                         label = { Text("重量") },
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true
                     )
@@ -410,9 +575,8 @@ fun InboundFormScreen(
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("单位") },
-                            modifier = Modifier
-                                .width(80.dp)
-                                .menuAnchor(),
+                            modifier = Modifier.width(80.dp),
+                            shape = RoundedCornerShape(12.dp),
                             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
                         )
                     }
@@ -425,6 +589,10 @@ fun InboundFormScreen(
                     onValueChange = { unitPrice = it },
                     label = { Text("单价 (元)") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.AttachMoney, contentDescription = null, tint = EnergyBlue)
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true
                 )
@@ -437,6 +605,7 @@ fun InboundFormScreen(
                     onValueChange = { note = it },
                     label = { Text("备注") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     minLines = 3
                 )
             }
@@ -444,11 +613,33 @@ fun InboundFormScreen(
             // 错误提示
             if (errorMessage != null) {
                 item {
-                    Text(
-                        text = errorMessage!!,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp
-                    )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFFEBEE)
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Error,
+                                contentDescription = null,
+                                tint = StatusError,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = errorMessage!!,
+                                color = StatusError,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
                 }
             }
             
@@ -501,22 +692,37 @@ fun InboundFormScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    enabled = !isSubmitting
+                        .height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    enabled = !isSubmitting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = EnergyBlue
+                    )
                 ) {
                     if (isSubmitting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White,
+                            strokeWidth = 2.dp
                         )
                     } else {
-                        Text("确认入库", fontSize = 16.sp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text("确认入库", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
             
             item {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

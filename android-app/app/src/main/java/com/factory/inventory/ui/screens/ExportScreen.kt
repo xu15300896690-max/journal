@@ -3,16 +3,18 @@ package com.factory.inventory.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.api.ApiClient
 import com.factory.inventory.data.model.InboundOrder
 import com.factory.inventory.data.model.OutboundOrder
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.FileUtils
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,12 +46,30 @@ fun ExportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("数据导出") },
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.FileDownload,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Text("数据导出")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = EnergyBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -56,12 +77,35 @@ fun ExportScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
             // 导出类型选择
             item {
-                Text("📊 导出类型", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Category,
+                            contentDescription = null,
+                            tint = EnergyBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Text("导出类型", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                }
             }
             
             item {
@@ -72,28 +116,67 @@ fun ExportScreen(
                     FilterChip(
                         selected = selectedType == "inbound",
                         onClick = { selectedType = "inbound" },
-                        label = { Text("入库单") },
-                        leadingIcon = if (selectedType == "inbound") {
-                            { Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp)) }
-                        } else null,
-                        modifier = Modifier.weight(1f)
+                        label = { 
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.ArrowDownward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text("入库单")
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     )
                     
                     FilterChip(
                         selected = selectedType == "outbound",
                         onClick = { selectedType = "outbound" },
-                        label = { Text("出库单") },
-                        leadingIcon = if (selectedType == "outbound") {
-                            { Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp)) }
-                        } else null,
-                        modifier = Modifier.weight(1f)
+                        label = { 
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.ArrowUpward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text("出库单")
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
             
             // 日期范围
             item {
-                Text("📅 日期范围", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8F5E9)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            tint = InventoryGreen,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Text("日期范围", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                }
             }
             
             item {
@@ -103,6 +186,10 @@ fun ExportScreen(
                     label = { Text("开始日期") },
                     placeholder = { Text("YYYY-MM-DD") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Event, contentDescription = null, tint = EnergyBlue)
+                    },
                     singleLine = true
                 )
             }
@@ -114,6 +201,10 @@ fun ExportScreen(
                     label = { Text("结束日期") },
                     placeholder = { Text("YYYY-MM-DD") },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Event, contentDescription = null, tint = EnergyBlue)
+                    },
                     singleLine = true
                 )
             }
@@ -147,22 +238,31 @@ fun ExportScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    enabled = !isExporting
+                        .height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    enabled = !isExporting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = EnergyBlue
+                    )
                 ) {
                     if (isExporting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White,
+                            strokeWidth = 2.dp
                         )
                     } else {
-                        Icon(
-                            Icons.Default.FileDownload,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("导出 Excel", fontSize = 16.sp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.FileDownload,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text("导出 Excel", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
@@ -178,17 +278,29 @@ fun ExportScreen(
                             } else {
                                 Color(0xFFFFEBEE)
                             }
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(
-                            text = exportResult!!,
-                            modifier = Modifier.padding(16.dp),
-                            color = if (exportResult!!.startsWith("✅")) {
-                                Color(0xFF2E7D32)
-                            } else {
-                                Color(0xFFC62828)
-                            }
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                if (exportResult!!.startsWith("✅")) Icons.Default.CheckCircle else Icons.Default.Error,
+                                contentDescription = null,
+                                tint = if (exportResult!!.startsWith("✅")) StatusSuccess else StatusError,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = exportResult!!,
+                                color = if (exportResult!!.startsWith("✅")) StatusSuccess else StatusError,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
@@ -199,47 +311,65 @@ fun ExportScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFE3F2FD)
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(
-                            text = "💡 使用说明",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Lightbulb,
+                                contentDescription = null,
+                                tint = EnergyBlue,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "使用说明",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = TextPrimary
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "1. 选择导出类型（入库单/出库单）",
-                            fontSize = 12.sp
+                            text = "• 选择导出类型（入库单/出库单）",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            lineHeight = 20.sp
                         )
                         Text(
-                            text = "2. 选择日期范围（可选）",
-                            fontSize = 12.sp
+                            text = "• 选择日期范围（可选）",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            lineHeight = 20.sp
                         )
                         Text(
-                            text = "3. 点击导出按钮",
-                            fontSize = 12.sp
+                            text = "• 点击导出按钮",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            lineHeight = 20.sp
                         )
                         Text(
-                            text = "4. 文件将保存到 下载/FactoryInventory 目录",
-                            fontSize = 12.sp
+                            text = "• 文件将保存到 下载/FactoryInventory 目录",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            lineHeight = 20.sp
                         )
                     }
                 }
             }
             
             item {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 
-/**
- * 导出数据到 Excel
- */
 private suspend fun exportData(
     context: Context,
     type: String,
@@ -247,7 +377,6 @@ private suspend fun exportData(
     endDate: String
 ): String? {
     return try {
-        // 获取数据
         val orders = if (type == "inbound") {
             val response = ApiClient.getService().getInboundList(
                 page = 1,
@@ -261,16 +390,13 @@ private suspend fun exportData(
             response.body()?.data?.data ?: emptyList()
         }
         
-        // 生成 Excel 内容（CSV 格式）
         val csvContent = buildString {
-            // 表头
             if (type == "inbound") {
                 appendLine("单号，供应商，仓库，车牌，司机，数量，金额，日期")
             } else {
                 appendLine("单号，客户，仓库，车牌，数量，金额，日期")
             }
             
-            // 数据行
             orders.forEach { order ->
                 if (type == "inbound") {
                     val inbound = order as InboundOrder
@@ -299,14 +425,11 @@ private suspend fun exportData(
             }
         }
         
-        // 生成文件名
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val fileName = "Factory_${type}_${timeStamp}.csv"
         
-        // 保存文件
         val file = FileUtils.exportExcel(context, fileName, csvContent)
         
-        // 分享文件
         file?.let {
             shareFile(context, it)
         }
@@ -318,9 +441,6 @@ private suspend fun exportData(
     }
 }
 
-/**
- * 分享文件
- */
 private fun shareFile(context: Context, file: File) {
     try {
         val uri = Uri.fromFile(file)

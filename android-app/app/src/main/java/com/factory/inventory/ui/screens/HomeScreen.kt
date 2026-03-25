@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -19,8 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.factory.inventory.data.MockData
 import com.factory.inventory.data.api.ApiClient
-import com.factory.inventory.data.model.InboundOrder
-import com.factory.inventory.data.model.OutboundOrder
+import com.factory.inventory.ui.theme.*
 import com.factory.inventory.util.Config
 import kotlinx.coroutines.launch
 
@@ -42,7 +44,6 @@ fun HomeScreen(
         scope.launch {
             try {
                 if (Config.USE_LOCAL_DATA) {
-                    // 使用本地测试数据
                     val inboundOrders = MockData.mockInboundOrders.map {
                         RecentOrder(
                             orderNo = it.order_no,
@@ -67,7 +68,6 @@ fun HomeScreen(
                         .sortedByDescending { it.date }
                         .take(5)
                 } else {
-                    // 使用服务器数据
                     val inboundResponse = ApiClient.getService().getInboundList(page = 1, perPage = 5)
                     val inboundOrders = if (inboundResponse.isSuccessful) {
                         inboundResponse.body()?.data?.data?.map { order ->
@@ -108,176 +108,465 @@ fun HomeScreen(
         }
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("工厂出入库管理") },
-                actions = {
-                    IconButton(onClick = onNavigateToBaseData) {
-                        Icon(Icons.Default.Business, contentDescription = "基础数据")
-                    }
-                    IconButton(onClick = onLogout) {
-                        Icon(Icons.Default.Logout, contentDescription = "退出登录")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = BackgroundGray
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 功能按钮区域
+            // 顶部栏 - 品牌 + 操作员
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // 入库按钮
-                    ActionButton(
-                        icon = Icons.Default.ArrowDownward,
-                        title = "入库",
-                        subtitle = "新建入库单",
-                        backgroundColor = Color(0xFF1976D2),
-                        onClick = onNavigateToInbound,
-                        modifier = Modifier.weight(1f).height(100.dp)
-                    )
-                    
-                    // 出库按钮
-                    ActionButton(
-                        icon = Icons.Default.ArrowUpward,
-                        title = "出库",
-                        subtitle = "新建出库单",
-                        backgroundColor = Color(0xFFFF9800),
-                        onClick = onNavigateToOutbound,
-                        modifier = Modifier.weight(1f).height(100.dp)
-                    )
-                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
             
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // 库存查询
-                    ActionButton(
-                        icon = Icons.Default.Inventory,
-                        title = "库存",
-                        subtitle = "库存查询",
-                        backgroundColor = Color(0xFF4CAF50),
-                        onClick = onNavigateToInventory,
-                        modifier = Modifier.weight(1f).height(100.dp)
-                    )
-                    
-                    // 统计报表
-                    ActionButton(
-                        icon = Icons.Default.BarChart,
-                        title = "统计",
-                        subtitle = "报表统计",
-                        backgroundColor = Color(0xFF9C27B0),
-                        onClick = onNavigateToStats,
-                        modifier = Modifier.weight(1f).height(100.dp)
-                    )
-                }
-            }
-            
-            // 最近记录
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "最近记录",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                    // 品牌标识
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Bolt,
+                                contentDescription = null,
+                                tint = EnergyCyan,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "xurui",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "Clean Energy",
+                                fontSize = 12.sp,
+                                color = EnergyBlue,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                    
+                    // 操作员信息
+                    Row(
+                        modifier = Modifier
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(EnergyCyan, EnergyBlue)
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = EnergyBlue,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Text(
+                            text = "操作员 042",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+            
+            // 入库作业主卡片
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(Color(0xFF424242), Color(0xFF212121))
+                                )
+                            )
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // 状态指示
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(StatusSuccess),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    // 脉冲动画效果可以后续添加
+                                }
+                                Text(
+                                    text = "READY TO SCAN",
+                                    color = StatusSuccess,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 1.sp
+                                )
+                            }
+                            
+                            // 标题
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "入库作业",
+                                    color = Color.White,
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "点击开始处理新的 PO 入库申请",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                            
+                            // 开始扫描按钮
+                            Button(
+                                onClick = onNavigateToInbound,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(28.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.QrCodeScanner,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = Color(0xFF212121)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "开始扫描",
+                                    color = Color(0xFF212121),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 功能模块 - 3 列
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 出库拣货
+                    FunctionCard(
+                        icon = Icons.Default.ArrowUpward,
+                        title = "出库拣货",
+                        backgroundColor = Color(0xFFE3F2FD),
+                        iconColor = Color(0xFF1976D2),
+                        onClick = onNavigateToOutbound,
+                        modifier = Modifier.weight(1f).height(120.dp)
+                    )
+                    
+                    // 查询统计
+                    FunctionCard(
+                        icon = Icons.Default.BarChart,
+                        title = "查询统计",
+                        backgroundColor = Color(0xFFE8F5E9),
+                        iconColor = Color(0xFF4CAF50),
+                        onClick = onNavigateToStats,
+                        modifier = Modifier.weight(1f).height(120.dp)
+                    )
+                    
+                    // 基础数据
+                    FunctionCard(
+                        icon = Icons.Default.Business,
+                        title = "基础数据",
+                        backgroundColor = Color(0xFFF3E5F5),
+                        iconColor = Color(0xFF9C27B0),
+                        onClick = onNavigateToBaseData,
+                        modifier = Modifier.weight(1f).height(120.dp)
                     )
                 }
             }
             
-            // 最近记录列表
-            if (isLoading) {
-                item {
-                    Box(
+            // 最近记录
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = CardWhite
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(16.dp)
                     ) {
-                        CircularProgressIndicator()
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "最近记录",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            TextButton(onClick = { }) {
+                                Text(
+                                    text = "查看全部",
+                                    color = EnergyBlue,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // 记录列表
+                        if (isLoading) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = EnergyBlue
+                                )
+                            }
+                        } else if (recentOrders.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "暂无记录",
+                                    color = TextSecondary,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        } else {
+                            recentOrders.take(3).forEach { order ->
+                                RecentOrderItem(order)
+                                if (order != recentOrders.last()) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+                        }
                     }
-                }
-            } else if (recentOrders.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("暂无记录", color = Color.Gray)
-                    }
-                }
-            } else {
-                items(recentOrders) { order ->
-                    RecentOrderItem(order)
                 }
             }
             
             item {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 
 @Composable
-fun ActionButton(
+fun FunctionCard(
     icon: ImageVector,
     title: String,
-    subtitle: String,
     backgroundColor: Color,
+    iconColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = modifier
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
-                .padding(16.dp),
+                .padding(12.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(36.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(iconColor.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TextPrimary,
+                    maxLines = 2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RecentOrderItem(order: RecentOrder) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = BackgroundGray
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (order.type == "inbound") 
+                                Color(0xFFE3F2FD) 
+                            else 
+                                Color(0xFFE8F5E9)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (order.type == "inbound") 
+                            Icons.Default.ArrowDownward 
+                        else 
+                            Icons.Default.ArrowUpward,
+                        contentDescription = null,
+                        tint = if (order.type == "inbound") 
+                            Color(0xFF1976D2) 
+                        else 
+                            Color(0xFF4CAF50),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                
+                Column {
+                    Text(
+                        text = order.orderNo,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = TextPrimary
+                    )
+                    Text(
+                        text = order.partner,
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                    if (!order.plateNumber.isNullOrBlank()) {
+                        Text(
+                            text = "🚗 ${order.plateNumber}",
+                            fontSize = 11.sp,
+                            color = TextSecondary
+                        )
+                    }
+                }
+            }
+            
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = if (order.type == "inbound") "入库" else "出库",
+                    color = if (order.type == "inbound") 
+                        Color(0xFF1976D2) 
+                    else 
+                        Color(0xFF4CAF50),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp
                 )
                 Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.8f)
+                    text = "¥${String.format("%.2f", order.amount)}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = if (order.type == "inbound") 
+                        Color(0xFF1976D2) 
+                    else 
+                        Color(0xFF4CAF50)
+                )
+                Text(
+                    text = order.date.replace("T", " ").substring(0, 16),
+                    color = TextSecondary,
+                    fontSize = 10.sp
                 )
             }
         }
@@ -292,75 +581,3 @@ data class RecentOrder(
     val date: String,
     val plateNumber: String?
 )
-
-@Composable
-fun RecentOrderItem(order: RecentOrder) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFFFF9800),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = order.orderNo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = order.partner,
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-                if (!order.plateNumber.isNullOrBlank()) {
-                    Text(
-                        text = "🚗 ${order.plateNumber}",
-                        color = Color.Gray,
-                        fontSize = 11.sp
-                    )
-                }
-            }
-            
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    text = if (order.type == "inbound") "入库" else "出库",
-                    color = if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFFFF9800),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "¥${String.format("%.2f", order.amount)}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = if (order.type == "inbound") Color(0xFF1976D2) else Color(0xFF4CAF50)
-                )
-                Text(
-                    text = order.date.replace("T", " ").substring(0, 16),
-                    color = Color.Gray,
-                    fontSize = 10.sp
-                )
-            }
-        }
-    }
-}
