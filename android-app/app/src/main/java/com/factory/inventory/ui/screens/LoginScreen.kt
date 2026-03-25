@@ -199,16 +199,9 @@ fun LoginScreen(
                             
                             scope.launch {
                                 try {
-                                    if (Config.USE_SUPABASE) {
-                                        // ✅ Supabase 云端登录
-                                        val isEmail = username.contains("@")
-                                        if (isEmail) {
-                                            SupabaseManager.loginWithEmail(username, password)
-                                        } else {
-                                            SupabaseManager.loginWithPhone(username, password)
-                                        }
-                                        onLoginSuccess()
-                                    } else if (Config.USE_LOCAL_DATA) {
+                                    // 当前 Supabase SDK 2.1.0 API 有重大变化，暂时使用 Flask 后端
+                                    // TODO: 等待 Supabase SDK 文档更新后修复 gotrue/postgrest API
+                                    if (Config.USE_LOCAL_DATA) {
                                         // 本地测试模式
                                         kotlinx.coroutines.delay(500)
                                         ApiClient.setToken("test_token_" + System.currentTimeMillis())
@@ -277,7 +270,7 @@ fun LoginScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE8F5E9)
+                        containerColor = Color(0xFFFFF3E0)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -289,22 +282,22 @@ fun LoginScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                Icons.Default.Cloud,
+                                Icons.Default.Info,
                                 contentDescription = null,
-                                tint = Color(0xFF2E7D32),
+                                tint = Color(0xFFE65100),
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "☁️ 生产环境：Supabase 云端数据库",
+                                text = "⚠️ Supabase 配置完成，等待 SDK API 更新",
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF2E7D32)
+                                color = Color(0xFFE65100)
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
+                            text = "• Supabase URL 和 Key 已配置\n• 当前 Supabase SDK 2.1.0 API 有变化\n• 暂时使用 Flask 后端\n• 等待官方文档更新后修复",
                             fontSize = 13.sp,
-                            color = Color(0xFF1B5E20),
+                            color = Color(0xFFE65100),
                             lineHeight = 20.sp
                         )
                     }
