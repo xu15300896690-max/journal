@@ -12,9 +12,7 @@ object SupabaseClient {
     private val client = createSupabaseClient(
         supabaseUrl = Config.SUPABASE_URL,
         supabaseKey = Config.SUPABASE_ANON_KEY
-    )
-    
-    private const val TAG = "SupabaseClient"
+    ) { }
     
     /**
      * 获取客户端实例
