@@ -48,9 +48,9 @@ object MockData {
     
     // 模拟仓库
     val mockWarehouses = listOf(
-        Warehouse(1, "主仓库", "WH001", "工厂区 A 栋", "仓库管理员", "13800000001"),
-        Warehouse(2, "原材料仓", "WH002", "工厂区 B 栋", "张三", "13800000002"),
-        Warehouse(3, "成品仓", "WH003", "工厂区 C 栋", "李四", "13800000003")
+        Warehouse(1, "主仓库", "WH001"),
+        Warehouse(2, "原材料仓", "WH002"),
+        Warehouse(3, "成品仓", "WH003")
     )
     
     // 模拟入库单
@@ -64,7 +64,6 @@ object MockData {
             driver_name = "刘师傅",
             total_amount = 450000.00,
             status = "completed",
-            order_date = "2024-03-24",
             created_at = "2024-03-24 15:30:00"
         ),
         InboundOrder(
@@ -76,7 +75,6 @@ object MockData {
             driver_name = "陈师傅",
             total_amount = 25000.00,
             status = "completed",
-            order_date = "2024-03-24",
             created_at = "2024-03-24 14:00:00"
         ),
         InboundOrder(
@@ -88,7 +86,6 @@ object MockData {
             driver_name = "王师傅",
             total_amount = 180000.00,
             status = "completed",
-            order_date = "2024-03-23",
             created_at = "2024-03-23 10:00:00"
         )
     )
@@ -103,7 +100,6 @@ object MockData {
             plate_number = "沪 D22222",
             total_amount = 100000.00,
             status = "completed",
-            order_date = "2024-03-24",
             created_at = "2024-03-24 16:00:00"
         ),
         OutboundOrder(
@@ -114,7 +110,6 @@ object MockData {
             plate_number = "沪 E33333",
             total_amount = 50000.00,
             status = "completed",
-            order_date = "2024-03-24",
             created_at = "2024-03-24 11:00:00"
         ),
         OutboundOrder(
@@ -125,7 +120,6 @@ object MockData {
             plate_number = "沪 F44444",
             total_amount = 75000.00,
             status = "completed",
-            order_date = "2024-03-23",
             created_at = "2024-03-23 15:00:00"
         )
     )
