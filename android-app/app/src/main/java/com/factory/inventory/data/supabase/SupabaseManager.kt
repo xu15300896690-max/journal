@@ -4,9 +4,9 @@ import android.content.Context
 import com.factory.inventory.data.model.*
 import com.factory.inventory.util.Config
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.Auth
-import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.GoTrue
+import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -40,7 +40,7 @@ object SupabaseManager {
             supabaseUrl = Config.SUPABASE_URL,
             supabaseKey = Config.SUPABASE_ANON_KEY
         ) {
-            install(Auth)
+            install(GoTrue)
             install(Postgrest)
         }
         
@@ -61,35 +61,21 @@ object SupabaseManager {
      * 邮箱密码登录
      */
     suspend fun loginWithEmail(email: String, password: String) {
-        getClient().auth.signInWithPassword(email, password)
+        getClient().gotrue.loginWithPassword(email, password)
     }
     
     /**
      * 手机号密码登录
      */
     suspend fun loginWithPhone(phone: String, password: String) {
-        getClient().auth.signInWithPassword(phone, password)
-    }
-    
-    /**
-     * 注册
-     */
-    suspend fun signUp(email: String, password: String, username: String) {
-        getClient().auth.signUpWith(
-            provider = io.github.jan.supabase.auth.providers.builtin.Email,
-            buildJsonObject {
-                put("email", email)
-                put("password", password)
-                put("username", username)
-            }
-        )
+        getClient().gotrue.loginWithPassword(phone, password)
     }
     
     /**
      * 退出登录
      */
     suspend fun logout() {
-        getClient().auth.signOut()
+        getClient().gotrue.logout()
     }
     
     /**
@@ -97,7 +83,7 @@ object SupabaseManager {
      */
     fun isLoggedIn(): Boolean {
         return if (isInitialized) {
-            getClient().auth.currentSessionOrNull() != null
+            getClient().gotrue.currentSessionOrNull() != null
         } else {
             false
         }
@@ -108,7 +94,7 @@ object SupabaseManager {
      */
     fun getCurrentUserId(): String? {
         return if (isInitialized) {
-            getClient().auth.currentSessionOrNull()?.user?.id
+            getClient().gotrue.currentSessionOrNull()?.user?.id
         } else {
             null
         }
@@ -376,10 +362,10 @@ private data class OutboundOrderResult(
     val message: String
 )
 
-private fun io.github.jan.supabase.gotrue.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResult {
+private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResult {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }
 
-private fun io.github.jan.supabase.gotrue.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResult {
+private fun io.github.jan.supabase.postgrest.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResult {
     return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
 }

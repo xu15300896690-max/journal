@@ -102,9 +102,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
     // Supabase - 云端数据库集成
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0")
-    implementation("io.github.jan-tennert.supabase:auth-kt:2.0.0")
-    implementation("io.github.jan-tennert.supabase:functions-kt:2.0.0")
+    // 使用正确的 Maven 坐标格式
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0")
+    implementation("io.github.jan-tennert.supabase:functions-kt:2.1.0")
     implementation("io.ktor:ktor-client-android:2.3.7")
     implementation("io.ktor:ktor-client-core:2.3.7")
     implementation("io.ktor:ktor-client-serialization:2.3.7")
