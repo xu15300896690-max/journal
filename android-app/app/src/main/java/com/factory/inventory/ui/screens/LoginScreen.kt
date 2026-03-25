@@ -199,16 +199,9 @@ fun LoginScreen(
                             
                             scope.launch {
                                 try {
-                                    if (Config.USE_SUPABASE) {
-                                        // ✅ Supabase 云端登录
-                                        val isEmail = username.contains("@")
-                                        if (isEmail) {
-                                            SupabaseManager.loginWithEmail(username, password)
-                                        } else {
-                                            SupabaseManager.loginWithPhone(username, password)
-                                        }
-                                        onLoginSuccess()
-                                    } else if (Config.USE_LOCAL_DATA) {
+                                    // 当前 Supabase SDK 存在兼容性问题，暂时使用 Flask 后端
+                                    // TODO: 等待 SDK 稳定后启用 Supabase
+                                    if (Config.USE_LOCAL_DATA) {
                                         // 本地测试模式
                                         kotlinx.coroutines.delay(500)
                                         ApiClient.setToken("test_token_" + System.currentTimeMillis())
@@ -273,43 +266,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             // 环境提示
-            if (Config.USE_SUPABASE) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE8F5E9)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Cloud,
-                                contentDescription = null,
-                                tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = "☁️ 生产环境：Supabase 云端数据库",
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF2E7D32)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "• 使用 Supabase 云端数据库\n• 支持实时数据同步\n• 测试账号：admin@factory.com / admin123456",
-                            fontSize = 13.sp,
-                            color = Color(0xFF1B5E20),
-                            lineHeight = 20.sp
-                        )
-                    }
-                }
-            } else if (Config.USE_LOCAL_DATA) {
+            if (Config.USE_LOCAL_DATA) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(

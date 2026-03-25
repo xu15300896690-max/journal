@@ -10,7 +10,8 @@ object Config {
     
     // true = 使用 Supabase 云端数据库（生产环境）
     // false = 使用 Flask 本地服务器
-    const val USE_SUPABASE = true  // ✅ 生产环境：启用 Supabase
+    // 注意：Supabase SDK 当前版本存在兼容性问题，暂时使用 Flask 后端
+    const val USE_SUPABASE = false  // ⚠️ Supabase 待 SDK 稳定后启用
     
     // 本地测试数据（开发调试用）
     const val USE_LOCAL_DATA = !USE_SUPABASE

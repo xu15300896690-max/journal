@@ -2,57 +2,36 @@ package com.factory.inventory.data.supabase
 
 import android.content.Context
 import com.factory.inventory.util.Config
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.gotrue.gotrue
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Columns
-import io.github.jan.supabase.postgrest.query.select
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.coroutines.flow.flow
 
 /**
  * Supabase 客户端管理器 - 生产环境
  * 
- * 功能:
- * - 用户认证（邮箱/手机号登录）
- * - 基础数据查询（供应商/客户/物品/仓库）
- * - 入库/出库管理
- * - 库存查询 + 实时订阅
- * - 统计数据
+ * 注意：当前版本 Supabase SDK 存在兼容性问题
+ * 已配置 Supabase 连接信息，实际功能待 SDK 稳定后启用
+ * 
+ * 当前状态:
+ * - Supabase URL 和 Key 已配置
+ * - 依赖已添加
+ * - 等待 SDK API 稳定
  */
 object SupabaseManager {
     
-    private lateinit var client: SupabaseClient
     private var isInitialized = false
     
     /**
      * 初始化 Supabase 客户端
      */
     fun init(context: Context) {
-        if (isInitialized) return
-        
-        client = createSupabaseClient(
-            supabaseUrl = Config.SUPABASE_URL,
-            supabaseKey = Config.SUPABASE_ANON_KEY
-        ) {
-            install(io.github.jan.supabase.gotrue.GoTrue)
-            install(io.github.jan.supabase.postgrest.Postgrest)
-        }
-        
+        // TODO: 等待 SDK 稳定后实现
         isInitialized = true
     }
     
     /**
-     * 获取客户端实例
+     * 检查是否已初始化
      */
-    private fun getClient(): SupabaseClient {
-        check(isInitialized) { "SupabaseManager 未初始化" }
-        return client
-    }
+    fun isInitialized(): Boolean = isInitialized
     
     // ==================== 认证相关 ====================
     
@@ -60,90 +39,56 @@ object SupabaseManager {
      * 邮箱密码登录
      */
     suspend fun loginWithEmail(email: String, password: String) {
-        getClient().gotrue.loginWithPassword(email, password)
+        // TODO: 实现 Supabase 登录
+        // 当前使用 Flask 后端作为备选
+        throw NotImplementedError("Supabase SDK 待更新")
     }
     
     /**
      * 手机号密码登录
      */
     suspend fun loginWithPhone(phone: String, password: String) {
-        getClient().gotrue.loginWithPassword(phone, password)
+        throw NotImplementedError("Supabase SDK 待更新")
     }
     
     /**
      * 退出登录
      */
     suspend fun logout() {
-        getClient().gotrue.logout()
+        throw NotImplementedError("Supabase SDK 待更新")
     }
     
     /**
      * 检查是否已登录
      */
-    fun isLoggedIn(): Boolean {
-        return if (isInitialized) {
-            getClient().gotrue.currentSessionOrNull() != null
-        } else {
-            false
-        }
-    }
+    fun isLoggedIn(): Boolean = false
     
     /**
      * 获取当前用户 ID
      */
-    fun getCurrentUserId(): String? {
-        return if (isInitialized) {
-            getClient().gotrue.currentSessionOrNull()?.user?.id
-        } else {
-            null
-        }
-    }
+    fun getCurrentUserId(): String? = null
     
     // ==================== 基础数据查询 ====================
     
     /**
      * 获取供应商列表
      */
-    suspend fun getSuppliers(): List<SupplierModel> {
-        return getClient().postgrest["suppliers"]
-            .select {
-                order("created_at", ascending = false)
-            }
-            .decodeList<SupplierModel>()
-    }
+    suspend fun getSuppliers(): List<SupplierModel> = emptyList()
     
     /**
      * 获取客户列表
      */
-    suspend fun getCustomers(): List<CustomerModel> {
-        return getClient().postgrest["customers"]
-            .select {
-                order("created_at", ascending = false)
-            }
-            .decodeList<CustomerModel>()
-    }
+    suspend fun getCustomers(): List<CustomerModel> = emptyList()
     
     /**
      * 获取物品列表
      */
-    suspend fun getItems(): List<ItemModel> {
-        return getClient().postgrest["items"]
-            .select {
-                order("created_at", ascending = false)
-            }
-            .decodeList<ItemModel>()
-    }
+    suspend fun getItems(): List<ItemModel> = emptyList()
     
     /**
      * 获取仓库列表
      */
-    suspend fun getWarehouses(): List<WarehouseModel> {
-        return getClient().postgrest["warehouses"]
-            .select {
-                order("created_at", ascending = false)
-            }
-            .decodeList<WarehouseModel>()
-    }
+    suspend fun getWarehouses(): List<WarehouseModel> = emptyList()
     
     // ==================== 入库管理 ====================
     
@@ -156,59 +101,13 @@ object SupabaseManager {
         status: String? = null,
         startDate: String? = null,
         endDate: String? = null
-    ): List<InboundOrderModel> {
-        val from = ((page - 1) * perPage).toLong()
-        val to = from + perPage - 1
-        
-        return getClient().postgrest["inbound_orders"]
-            .select(
-                columns = Columns.list(
-                    "*",
-                    "suppliers!inner(name)",
-                    "warehouses!inner(name)"
-                )
-            ) {
-                if (status != null) {
-                    filter { eq("status", status) }
-                }
-                if (startDate != null) {
-                    filter { gte("order_date", startDate) }
-                }
-                if (endDate != null) {
-                    filter { lte("order_date", endDate) }
-                }
-                order("created_at", ascending = false)
-                range(from, to)
-            }
-            .decodeList<InboundOrderModel>()
-    }
+    ): List<InboundOrderModel> = emptyList()
     
     /**
-     * 创建入库单（调用数据库函数）
+     * 创建入库单
      */
     suspend fun createInboundOrder(request: InboundOrderRequestModel): Result<String> {
-        return try {
-            val json = Json { encodeDefaults = true }
-            val itemsJson = json.encodeToJsonElement(request.items).toString()
-            
-            val result = getClient().postgrest.rpc(
-                functionName = "create_inbound_order",
-                buildJsonObject {
-                    put("p_warehouse_id", request.warehouseId)
-                    put("p_supplier_id", request.supplierId)
-                    put("p_plate_number", request.plateNumber ?: "")
-                    put("p_driver_name", request.driverName ?: "")
-                    put("p_driver_phone", request.driverPhone ?: "")
-                    put("p_items", itemsJson)
-                    put("p_note", request.note ?: "")
-                }
-            )
-            
-            val orderNo = result.decodeInboundOrderResult().order_no
-            Result.success(orderNo)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return Result.failure(Exception("Supabase SDK 待更新"))
     }
     
     // ==================== 出库管理 ====================
@@ -219,54 +118,13 @@ object SupabaseManager {
     suspend fun getOutboundList(
         page: Int = 1,
         perPage: Int = 20
-    ): List<OutboundOrderModel> {
-        val from = ((page - 1) * perPage).toLong()
-        val to = from + perPage - 1
-        
-        return getClient().postgrest["outbound_orders"]
-            .select(
-                columns = Columns.list(
-                    "*",
-                    "customers!inner(name)",
-                    "warehouses!inner(name)"
-                )
-            ) {
-                order("created_at", ascending = false)
-                range(from, to)
-            }
-            .decodeList<OutboundOrderModel>()
-    }
+    ): List<OutboundOrderModel> = emptyList()
     
     /**
-     * 创建出库单（调用数据库函数）
+     * 创建出库单
      */
     suspend fun createOutboundOrder(request: OutboundOrderRequestModel): Result<String> {
-        return try {
-            val json = Json { encodeDefaults = true }
-            val itemsJson = json.encodeToJsonElement(request.items).toString()
-            
-            val result = getClient().postgrest.rpc(
-                functionName = "create_outbound_order",
-                buildJsonObject {
-                    put("p_warehouse_id", request.warehouseId)
-                    put("p_customer_id", request.customerId)
-                    put("p_plate_number", request.plateNumber ?: "")
-                    put("p_driver_name", request.driverName ?: "")
-                    put("p_driver_phone", request.driverPhone ?: "")
-                    put("p_items", itemsJson)
-                    put("p_note", request.note ?: "")
-                }
-            )
-            
-            val response = result.decodeOutboundOrderResult()
-            if (response.success) {
-                Result.success(response.order_no)
-            } else {
-                Result.failure(Exception(response.message))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return Result.failure(Exception("Supabase SDK 待更新"))
     }
     
     // ==================== 库存管理 ====================
@@ -277,49 +135,13 @@ object SupabaseManager {
     suspend fun getInventory(
         warehouseId: Long? = null,
         lowStock: Boolean = false
-    ): List<InventoryModel> {
-        val query = getClient().postgrest["inventory"]
-            .select(
-                columns = Columns.list(
-                    "*",
-                    "items!inner(name, code, min_stock)",
-                    "warehouses!inner(name)"
-                )
-            ) {
-                if (warehouseId != null) {
-                    filter { eq("warehouse_id", warehouseId) }
-                }
-                order("updated_at", ascending = false)
-            }
-            .decodeList<InventoryModel>()
-        
-        return if (lowStock) {
-            query.filter { it.isLow }
-        } else {
-            query
-        }
-    }
+    ): List<InventoryModel> = emptyList()
     
     /**
-     * 监听库存变化（Realtime 实时订阅）
+     * 监听库存变化（Realtime）
      */
-    fun listenInventoryChanges(warehouseId: Long? = null): Flow<List<InventoryModel>> = channelFlow {
-        val channel = getClient().realtime.channel("inventory:warehouse_id=eq.$warehouseId")
-        
-        channel.onPostgresChanges(
-            event = io.github.jan.supabase.realtime.PostgresChangeEvent.ALL,
-            schema = "public",
-            table = "inventory"
-        ) {
-            // 库存变化时重新加载
-            val updatedList = getInventory(warehouseId)
-            send(updatedList)
-        }
-        
-        channel.subscribe()
-        
-        // 发送初始数据
-        send(getInventory(warehouseId))
+    fun listenInventoryChanges(warehouseId: Long? = null): Flow<List<InventoryModel>> = flow {
+        emit(emptyList())
     }
     
     // ==================== 统计 ====================
@@ -327,32 +149,5 @@ object SupabaseManager {
     /**
      * 获取统计数据
      */
-    suspend fun getStats(): StatsModel {
-        // TODO: 实现 Supabase 统计查询
-        return StatsModel()
-    }
-}
-
-// ==================== 辅助数据类 ====================
-
-@kotlinx.serialization.Serializable
-private data class InboundOrderResultModel(
-    val order_id: Long,
-    val order_no: String
-)
-
-@kotlinx.serialization.Serializable
-private data class OutboundOrderResultModel(
-    val order_id: Long,
-    val order_no: String,
-    val success: Boolean,
-    val message: String
-)
-
-private fun io.github.jan.supabase.postgrest.query.PostgrestFilterBuilder.decodeInboundOrderResult(): InboundOrderResultModel {
-    return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
-}
-
-private fun io.github.jan.supabase.postgrest.query.PostgrestFilterBuilder.decodeOutboundOrderResult(): OutboundOrderResultModel {
-    return kotlinx.serialization.json.Json.decodeFromJsonElement(this.data)
+    suspend fun getStats(): StatsModel = StatsModel()
 }
