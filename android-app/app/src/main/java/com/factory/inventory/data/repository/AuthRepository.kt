@@ -24,8 +24,8 @@ object AuthRepository {
         return try {
             Log.d(TAG, "尝试登录：$email")
             
-            // Supabase SDK 3.x 登录 API
-            val response = SupabaseClient.client.gotrue.loginWithPassword(
+            // 使用 Supabase GoTrue 登录
+            val response = SupabaseClient.getClient().gotrue.loginWithPassword(
                 email = email,
                 password = password
             )
@@ -33,7 +33,7 @@ object AuthRepository {
             Log.d(TAG, "登录成功")
             
             // 构建用户资料
-            val user = SupabaseClient.client.gotrue.currentSessionOrNull()?.user
+            val user = SupabaseClient.getClient().gotrue.currentSessionOrNull()?.user
                 ?: throw Exception("登录成功但未获取到用户信息")
             
             val profile = UserProfile(
@@ -91,7 +91,7 @@ object AuthRepository {
     suspend fun logout(): Result<Unit> {
         return try {
             Log.d(TAG, "退出登录")
-            SupabaseClient.client.gotrue.logout()
+            SupabaseClient.getClient().gotrue.logout()
             Log.d(TAG, "退出成功")
             Result.success(Unit)
         } catch (e: Exception) {
@@ -104,21 +104,21 @@ object AuthRepository {
      * 检查是否已登录
      */
     fun isLoggedIn(): Boolean {
-        return SupabaseClient.client.gotrue.currentSessionOrNull() != null
+        return SupabaseClient.getClient().gotrue.currentSessionOrNull() != null
     }
     
     /**
      * 获取当前用户 ID
      */
     fun getCurrentUserId(): String? {
-        return SupabaseClient.client.gotrue.currentSessionOrNull()?.user?.id
+        return SupabaseClient.getClient().gotrue.currentSessionOrNull()?.user?.id
     }
     
     /**
      * 获取当前用户资料
      */
     fun getCurrentUser(): UserProfile? {
-        val session = SupabaseClient.client.gotrue.currentSessionOrNull()
+        val session = SupabaseClient.getClient().gotrue.currentSessionOrNull()
         val user = session?.user ?: return null
         
         return UserProfile(

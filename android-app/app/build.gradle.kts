@@ -90,8 +90,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
-    // Supabase - 生产环境云端数据库集成 v3.4.1
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.4.1"))
+    // Supabase - 生产环境云端数据库集成
+    // 使用稳定的 2.1.0 版本
+    implementation(platform("io.github.jan-tennert.supabase:bom:2.1.0"))
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
     implementation("io.github.jan-tennert.supabase:gotrue-kt")
     implementation("io.github.jan-tennert.supabase:functions-kt")

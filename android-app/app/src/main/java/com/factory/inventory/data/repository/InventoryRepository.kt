@@ -36,7 +36,7 @@ object InventoryRepository {
             val from = ((page - 1) * perPage).toLong()
             val to = from + perPage - 1
             
-            val result = SupabaseClient.client.postgrest["inbound_orders"]
+            val result = SupabaseClient.getClient().postgrest["inbound_orders"]
                 .select(
                     columns = Columns.list(
                         "*",
@@ -79,7 +79,7 @@ object InventoryRepository {
             val from = ((page - 1) * perPage).toLong()
             val to = from + perPage - 1
             
-            val result = SupabaseClient.client.postgrest["outbound_orders"]
+            val result = SupabaseClient.getClient().postgrest["outbound_orders"]
                 .select(
                     columns = Columns.list(
                         "*",
@@ -110,7 +110,7 @@ object InventoryRepository {
         return try {
             Log.d(TAG, "获取库存列表")
             
-            val query = SupabaseClient.client.postgrest["inventory"]
+            val query = SupabaseClient.getClient().postgrest["inventory"]
                 .select(
                     columns = Columns.list(
                         "*",

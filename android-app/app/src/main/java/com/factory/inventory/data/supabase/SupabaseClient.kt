@@ -18,13 +18,18 @@ object SupabaseClient {
     
     private const val TAG = "SupabaseClient"
     
+    private const val TAG = "SupabaseClient"
+    
     // Supabase 客户端实例
-    val client = createSupabaseClient(
+    private val client = createSupabaseClient(
         supabaseUrl = Config.SUPABASE_URL,
         supabaseKey = Config.SUPABASE_ANON_KEY
-    ) {
-        // Supabase SDK 3.x 配置
-    }
+    )
+    
+    /**
+     * 获取客户端实例
+     */
+    fun getClient() = client
     
     /**
      * 检查是否已初始化
