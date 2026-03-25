@@ -101,17 +101,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
-    // Supabase - 生产环境云端数据库集成（已配置，待 SDK 稳定后启用）
-    // 当前版本 Supabase SDK 2.1.0 存在 API 兼容性问题
-    // 暂时注释，使用 Flask 后端作为生产环境备选方案
-    // implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:functions-kt:2.1.0")
-    // implementation("io.github.jan-tennert.supabase:realtime-kt:2.1.0")
-    // implementation("io.ktor:ktor-client-android:2.3.7")
-    // implementation("io.ktor:ktor-client-core:2.3.7")
-    // implementation("io.ktor:ktor-client-serialization:2.3.7")
-    // implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    // Supabase - 生产环境云端数据库集成
+    implementation(platform("io.github.jan-tennert.supabase:bom:2.1.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
+    implementation("io.github.jan-tennert.supabase:functions-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    implementation("io.ktor:ktor-client-android:2.3.7")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-serialization:2.3.7")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
     
     // ML Kit - Barcode Scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
